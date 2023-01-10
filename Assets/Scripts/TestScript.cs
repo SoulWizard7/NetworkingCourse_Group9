@@ -20,7 +20,6 @@ public class TestScript : MonoBehaviour
     {
         string myValue = parameters.Get("greetings", "");
         int leetValue = parameters.Get("Leet value", 0);
-        Debug.Log($"printing {leetValue} from {fromUser}");
     }
 
     void SpawnProjectileReplicated(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
@@ -35,6 +34,9 @@ public class TestScript : MonoBehaviour
         parameters.Set("greetings", "greetings from noob player");
         parameters.Set("Leet value", 1337);
         multiplayer?.InvokeRemoteProcedure("MyReplicatedFunction", UserId.AllInclusive, parameters);
-        multiplayer?.InvokeRemoteProcedure("SpawnProjectileReplicated", UserId.AllInclusive, parameters);
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            multiplayer?.InvokeRemoteProcedure("SpawnProjectileReplicated", UserId.AllInclusive, parameters);
+        }
     }
 }
