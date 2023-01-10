@@ -199,4 +199,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef3e26de9d9af0140a7b542a2d03c336, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  multiplayer: {fileID: 0}
+  projectilePrefab: {fileID: 2603026740779176569, guid: c71a4753b2117334a91d48146f48670c, type: 3}
