@@ -17,15 +17,22 @@ public class TestScript : MonoBehaviour
 
     void SpawnProjectileReplicated(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
     {
-        GameObject.Instantiate(projectilePrefab, transform.position, transform.rotation);
+        float x = parameters.Get("spawnX", 0.0f);
+        float y = parameters.Get("spawnY", 0.0f);
+        float z = parameters.Get("spawnZ", 0.0f);
+        Vector3 spawnPos = new Vector3(x, y, z);
+        GameObject.Instantiate(projectilePrefab, spawnPos, transform.rotation);
     }
 
     // Update is called once per frame
     void Update()
     {
-        ProcedureParameters parameters = new ProcedureParameters();
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
+            ProcedureParameters parameters = new ProcedureParameters();
+            parameters.Set("spawnX", transform.position.x);
+            parameters.Set("spawnY", transform.position.y);
+            parameters.Set("spawnZ", transform.position.z);
             multiplayer?.InvokeRemoteProcedure("SpawnProjectileReplicated", UserId.AllInclusive, parameters);
         }
     }
