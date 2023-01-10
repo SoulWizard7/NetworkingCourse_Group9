@@ -8,9 +8,11 @@ public class TestScript : MonoBehaviour
 {
     private Multiplayer multiplayer;
     [SerializeField] private GameObject projectilePrefab;
+    private Alteruna.Avatar _avatar;
 
     void Start()
     {
+        _avatar = GetComponent<Alteruna.Avatar>();
         multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
         multiplayer?.RegisterRemoteProcedure("SpawnProjectileReplicated", SpawnProjectileReplicated);
     }
@@ -27,7 +29,7 @@ public class TestScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && _avatar.IsMe)
         {
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("spawnX", transform.position.x);
