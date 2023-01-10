@@ -432,6 +432,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1525866518}
   - component: {fileID: 1525866517}
+  - component: {fileID: 1525866519}
   m_Layer: 0
   m_Name: Multiplayer
   m_TagString: Untagged
@@ -451,7 +452,7 @@ MonoBehaviour:
   m_Script: {fileID: 1777794829, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ApplicationID: 70d0e06a-a3ce-4e0e-bbf9-49d42700f080
+  ApplicationID: 58c57002-16be-476d-9527-643b710dcfb0
   LogLevel: 4
   Buckets:
   - Name: Min
@@ -549,6 +550,27 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1525866519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1525866516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 29116766, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Multiplayer: {fileID: 1525866517}
+  SpawnableObjects:
+  - {fileID: 2603026740779176569, guid: c71a4753b2117334a91d48146f48670c, type: 3}
+  ObjectSpawned:
+    m_PersistentCalls:
+      m_Calls: []
+  ObjectDespawned:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1701020647
 PrefabInstance:
   m_ObjectHideFlags: 0
