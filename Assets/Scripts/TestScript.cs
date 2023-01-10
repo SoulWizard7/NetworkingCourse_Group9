@@ -12,14 +12,7 @@ public class TestScript : MonoBehaviour
     void Start()
     {
         multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
-        multiplayer?.RegisterRemoteProcedure("MyReplicatedFunction", MyReplicatedFunction);
         multiplayer?.RegisterRemoteProcedure("SpawnProjectileReplicated", SpawnProjectileReplicated);
-    }
-
-    void MyReplicatedFunction(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
-    {
-        string myValue = parameters.Get("greetings", "");
-        int leetValue = parameters.Get("Leet value", 0);
     }
 
     void SpawnProjectileReplicated(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
@@ -31,9 +24,6 @@ public class TestScript : MonoBehaviour
     void Update()
     {
         ProcedureParameters parameters = new ProcedureParameters();
-        parameters.Set("greetings", "greetings from noob player");
-        parameters.Set("Leet value", 1337);
-        multiplayer?.InvokeRemoteProcedure("MyReplicatedFunction", UserId.AllInclusive, parameters);
         if(Input.GetKeyDown(KeyCode.Space))
         {
             multiplayer?.InvokeRemoteProcedure("SpawnProjectileReplicated", UserId.AllInclusive, parameters);
