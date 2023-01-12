@@ -11,8 +11,12 @@ public class PlayerController : MonoBehaviour
     private Alteruna.Avatar _avatar;
     private SpriteRenderer _renderer;
 
+    private Camera cam;
+
     void Start()
     {
+        cam = Camera.main;
+        Cursor.lockState = CursorLockMode.Confined;
         // Get components
         _avatar = GetComponent<Alteruna.Avatar>();
         _renderer = GetComponent<SpriteRenderer>();
@@ -26,15 +30,17 @@ public class PlayerController : MonoBehaviour
             // Set the avatar representing me to be green
             _renderer.color = Color.green;
 
-            // Get the horizontal and vertical axis.
+            //Movement
             float _translation = Input.GetAxis("Vertical") * Speed;
-            float _rotation = -Input.GetAxis("Horizontal") * RotationSpeed;
+            float _strafe = Input.GetAxis("Horizontal") * Speed;
 
             _translation *= Time.deltaTime;
-            _rotation *= Time.deltaTime;
+            _strafe *= Time.deltaTime;
+            transform.Translate(_strafe, _translation, 0, Space.World);
 
-            transform.Translate(0, _translation, 0, Space.Self);
-            transform.Rotate(0, 0, _rotation);
+            //Mouselook
+            Vector2 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
+            transform.up = mousePos - new Vector2(transform.position.x, transform.position.y);
         }
     }
 }
