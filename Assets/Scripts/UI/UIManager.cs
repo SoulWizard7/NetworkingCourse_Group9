@@ -1,4 +1,5 @@
 using Alteruna;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using TMPro;
@@ -7,9 +8,21 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
+    public delegate void OnNameEntered(Multiplayer multiplayer);
+
+    public event OnNameEntered onNameEntered
+    {
+        add => _onNameEntered.Add(value);
+        remove => _onNameEntered.Remove(value);
+    }
+
+    public int PlayerCount = 4;
+
     [SerializeField] private List<TMP_Text> _playerHUD;
+    [SerializeField] private List<TMP_Text> _playerScores;
     [SerializeField] private List<TMP_Text> _teamHUD;
     [SerializeField] private TMP_InputField _nameInput;
+    [SerializeField] private Slider _playerCountSlider;
     [SerializeField] private GameObject _mainMenu;
     [SerializeField] private GameObject _hud;
     [SerializeField] private GameObject _roomPanel;
@@ -21,20 +34,33 @@ public class UIManager : MonoBehaviour
     private Canvas _selfCanvas;
     private Timer _timer;
 
+    private List<OnNameEntered> _onNameEntered = new List<OnNameEntered>();
+
     private List<Button> _roomButtons = new List<Button>();
 
     void Start()
     {
         _selfCanvas = GetComponent<Canvas>();
 
+        _playerCountSlider.value = PlayerCount;
+        _playerCountSlider.onValueChanged.AddListener(e => PlayerCount = (int)e);
+
         _nameInput.onSubmit.AddListener(name =>
         {
             _multiplayer = Instantiate(MultiplayerPrefab, Vector3.zero, Quaternion.identity);
             _multiplayer.SetUsername(_nameInput.text);
+            _multiplayer.MaxPlayers = (ushort)PlayerCount;
             _nameInput.gameObject.SetActive(false);
             _roomPanel.SetActive(true);
             _multiplayer.Connected.AddListener(SetupMultiplayerListeners);
+            _onNameEntered.ForEach(e => e(_multiplayer));
         });
+
+    }
+
+    public void UpdateScoreForPlayer(int playerIndex, int newScore)
+    {
+        _playerScores[playerIndex].text = newScore.ToString();
     }
 
     void ShowAvailableRooms(Multiplayer multiplayer)
@@ -55,6 +81,11 @@ public class UIManager : MonoBehaviour
             btnText.text = room.Name;
             btn.transform.position += Vector3.down * 2.0f;
             _roomButtons.Add(btn);
+            btn.onClick.AddListener(() => 
+            { 
+                room.Join();
+                ShowHUDAndHideOthers();
+            });
         }
 
         Debug.Log($"Rooms loaded! roomcount: {multiplayer.AvailableRooms.Count}");
@@ -90,20 +121,26 @@ public class UIManager : MonoBehaviour
         _multiplayer.OtherUserLeft.AddListener((multiplayer, user) =>
         {
             Debug.Log($"{user.Name} has left the room!");
-            _multiplayer.CurrentRoom.Users.ForEach(e => _playerHUD[_multiplayer.CurrentRoom.Users.Count - 1].text = user.Name);
+            _playerHUD[_multiplayer.CurrentRoom.Users.Find(u => u.Name == user.Name).Index].text = "Player:";
         });
 
         _startButton.onClick.AddListener(() =>
         {
             _multiplayer.JoinOnDemandRoom();
-            _roomPanel.SetActive(false);
-            _hud.SetActive(true);
+            ShowHUDAndHideOthers();
             _timer.Dispose();
         });
 
         _multiplayer.RoomListUpdated.AddListener(ShowAvailableRooms);
 
         _timer = new Timer(RefreshAvailableRooms, null, 0, 2000);
+    }
+
+    private void ShowHUDAndHideOthers()
+    {
+        _roomPanel.SetActive(false);
+        _hud.SetActive(true);
+        _playerCountSlider.gameObject.SetActive(false);
     }
 
     private void RefreshAvailableRooms(object state)
@@ -113,6 +150,6 @@ public class UIManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        _timer.Dispose();
+        _timer?.Dispose();
     }
 }
