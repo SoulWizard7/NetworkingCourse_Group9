@@ -13,8 +13,13 @@ public class PlayerController : MonoBehaviour
 
     private Camera cam;
 
+    private UIManager _uiManager;
+    private GameInstance _gameInstance;
+
     void Start()
     {
+        _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
+        _uiManager = GameObject.Find("UI").GetComponent<UIManager>();
         cam = Camera.main;
         Cursor.lockState = CursorLockMode.Confined;
         // Get components
@@ -29,6 +34,16 @@ public class PlayerController : MonoBehaviour
         {
             // Set the avatar representing me to be green
             _renderer.color = Color.green;
+
+            if(Input.GetKeyDown(KeyCode.Tab) && _gameInstance.State != GameState.GAME_STOPPED)
+            {
+                _uiManager.ShowMenu(MenuType.MENU_Scoreboard);
+            }
+
+            if(Input.GetKeyUp(KeyCode.Tab) && _gameInstance.State != GameState.GAME_STOPPED) 
+            {
+                _uiManager.ShowMenu(MenuType.MENU_IngameHUD);
+            }
 
             //Movement
             float _translation = Input.GetAxis("Vertical") * Speed;

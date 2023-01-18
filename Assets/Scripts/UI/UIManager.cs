@@ -6,61 +6,75 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum MenuType
+{
+    MENU_IngameHUD,
+    MENU_RoomSelect,
+    MENU_MainMenu,
+    MENU_PauseMenu,
+    MENU_Scoreboard
+}
+
+internal struct ScoreboardData
+{
+    internal ushort Id;
+    internal string Name;
+    internal string Score;
+}
+
 public class UIManager : MonoBehaviour
 {
-    public delegate void OnNameEntered(Multiplayer multiplayer);
-
-    public event OnNameEntered onNameEntered
-    {
-        add => _onNameEntered.Add(value);
-        remove => _onNameEntered.Remove(value);
-    }
-
     public int PlayerCount = 4;
 
-    [SerializeField] private List<TMP_Text> _playerHUD;
-    [SerializeField] private List<TMP_Text> _playerScores;
     [SerializeField] private List<TMP_Text> _teamHUD;
     [SerializeField] private TMP_InputField _nameInput;
     [SerializeField] private Slider _playerCountSlider;
     [SerializeField] private GameObject _mainMenu;
     [SerializeField] private GameObject _hud;
     [SerializeField] private GameObject _roomPanel;
-    [SerializeField] private Multiplayer MultiplayerPrefab;
+    [SerializeField] private GameObject _scoreBoard;
+    [SerializeField] private ScoreboardPlayer _sbPlayerPrefab;
     [SerializeField] private Button _roomButtonPrefab;
     [SerializeField] private Button _startButton;
+    [SerializeField] private TMP_Text _gameStateText;
+    [SerializeField] private TMP_Text _playerCountText;
     
-    private Multiplayer _multiplayer;
+    private List<ScoreboardPlayer> _scoreBoardPlayers = new List<ScoreboardPlayer>();
+    private GameInstance _gameInstance;
     private Canvas _selfCanvas;
     private Timer _timer;
 
-    private List<OnNameEntered> _onNameEntered = new List<OnNameEntered>();
-
     private List<Button> _roomButtons = new List<Button>();
+
+    private void Awake()
+    {
+        _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
+    }
 
     void Start()
     {
         _selfCanvas = GetComponent<Canvas>();
 
         _playerCountSlider.value = PlayerCount;
-        _playerCountSlider.onValueChanged.AddListener(e => PlayerCount = (int)e);
+        _playerCountText.text = _playerCountSlider.value.ToString();
+        _playerCountSlider.onValueChanged.AddListener(e => { 
+            PlayerCount = (int)e;
+            _playerCountText.text = PlayerCount.ToString();
+        });
 
         _nameInput.onSubmit.AddListener(name =>
         {
-            _multiplayer = Instantiate(MultiplayerPrefab, Vector3.zero, Quaternion.identity);
-            _multiplayer.SetUsername(_nameInput.text);
-            _multiplayer.MaxPlayers = (ushort)PlayerCount;
-            _nameInput.gameObject.SetActive(false);
-            _roomPanel.SetActive(true);
-            _multiplayer.Connected.AddListener(SetupMultiplayerListeners);
-            _onNameEntered.ForEach(e => e(_multiplayer));
+            ShowMenu(MenuType.MENU_RoomSelect);
+            _gameInstance.Setup(name, PlayerCount);
+            _gameInstance.OnConnected += SetupListeners;
         });
 
     }
 
     public void UpdateScoreForPlayer(int playerIndex, int newScore)
     {
-        _playerScores[playerIndex].text = newScore.ToString();
+        _scoreBoardPlayers[playerIndex].UpdateScore(newScore);
+        Debug.Log(playerIndex.ToString());
     }
 
     void ShowAvailableRooms(Multiplayer multiplayer)
@@ -84,68 +98,101 @@ public class UIManager : MonoBehaviour
             btn.onClick.AddListener(() => 
             { 
                 room.Join();
-                ShowHUDAndHideOthers();
+                ShowMenu(MenuType.MENU_IngameHUD);
             });
         }
-
-        Debug.Log($"Rooms loaded! roomcount: {multiplayer.AvailableRooms.Count}");
     }
 
-    void SetupMultiplayerListeners(Multiplayer multiplayer, Endpoint endpoint)
+    void SetupListeners()
     {
-        Debug.Log("CONNECTED!!");
-
-        _multiplayer.RoomJoined.AddListener((multiplayer, room, user) =>
+        _startButton.onClick.AddListener(() =>
         {
-            Debug.Log($"{user.Name} has joined the room with roomname: {room.Name}!");
-            room.Users.ForEach(e => _playerHUD[room.Users.Count - 1].text = e.Name);
+            _gameInstance.Multiplayer.JoinOnDemandRoom();
+            ShowMenu(MenuType.MENU_IngameHUD);
+            _timer?.Dispose();
+        });
+
+        _gameInstance.GameStateChanged.AddListener(newState => _gameStateText.text = newState.ToString());
+
+        _gameInstance.Multiplayer.RoomJoined.AddListener((multiplayer, room, user) =>
+        {
+            //room.Users.ForEach(e => _playerHUD[room.Users.Count - 1].text = e.Name);
+            room.Users.ForEach(u =>
+            {
+                var newSbPlayer = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
+                newSbPlayer.transform.position += new Vector3(0.0f, 10.0f * (user.Index + 1), 0.0f);
+                newSbPlayer.SetPlayerInfo(u.Name, 0);
+                _scoreBoardPlayers.Add(newSbPlayer);
+            });
+
+            _gameInstance.ScoresUpdated.AddListener(scoresUpdated =>
+            {
+                foreach (var score in scoresUpdated)
+                {
+                    UpdateScoreForPlayer(score.Key, score.Value);
+                }
+
+                Debug.Log("Updating scores on HUD!");
+            });
+
+            _timer?.Dispose();
             _selfCanvas.gameObject.SetActive(true);
         });
 
-        _multiplayer.RoomLeft.AddListener(multiplayer =>
+        _gameInstance.Multiplayer.RoomLeft.AddListener(multiplayer =>
         {
-            _playerHUD.ForEach(e =>
-            {
-                e.text = "Player:";
-            });
-
+            _scoreBoardPlayers.ForEach(sb => Destroy(sb.gameObject));
+            _scoreBoardPlayers.Clear();
             _selfCanvas.gameObject.SetActive(false);
         });
 
-        _multiplayer.OtherUserJoined.AddListener((multiplayer, user) =>
+        _gameInstance.Multiplayer.OtherUserJoined.AddListener((multiplayer, user) =>
         {
-            Debug.Log($"{user.Name} has joined the room!");
-            _playerHUD[multiplayer.GetUsers().Count - 1].text = user.Name;
+            var newSbItem = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
+            newSbItem.transform.position += new Vector3(0.0f, 10.0f * user.Index, 0.0f);
+            newSbItem.SetPlayerInfo(user.Name, 0);
+            _scoreBoardPlayers.Add(newSbItem);
         });
 
-        _multiplayer.OtherUserLeft.AddListener((multiplayer, user) =>
+        _gameInstance.Multiplayer.OtherUserLeft.AddListener((multiplayer, user) =>
         {
-            Debug.Log($"{user.Name} has left the room!");
-            _playerHUD[_multiplayer.CurrentRoom.Users.Find(u => u.Name == user.Name).Index].text = "Player:";
+            var sbItem = _scoreBoardPlayers.Find(sb => sb.name == user.Name);
+            Destroy(sbItem.gameObject);
+            _scoreBoardPlayers.Remove(sbItem);
         });
 
-        _startButton.onClick.AddListener(() =>
-        {
-            _multiplayer.JoinOnDemandRoom();
-            ShowHUDAndHideOthers();
-            _timer.Dispose();
-        });
-
-        _multiplayer.RoomListUpdated.AddListener(ShowAvailableRooms);
-
-        _timer = new Timer(RefreshAvailableRooms, null, 0, 2000);
+        _gameInstance.Multiplayer.RoomListUpdated.AddListener(ShowAvailableRooms);
     }
 
-    private void ShowHUDAndHideOthers()
+    public void ShowMenu(MenuType menuType)
     {
-        _roomPanel.SetActive(false);
-        _hud.SetActive(true);
-        _playerCountSlider.gameObject.SetActive(false);
-    }
-
-    private void RefreshAvailableRooms(object state)
-    {
-        _multiplayer.RefreshRoomList();
+        switch (menuType)
+        {
+            case MenuType.MENU_IngameHUD:
+                _roomPanel.SetActive(false);
+                _mainMenu.SetActive(false);
+                _hud.SetActive(true);
+                _scoreBoard.SetActive(false);
+                break;
+            case MenuType.MENU_MainMenu:
+                _roomPanel.SetActive(false);
+                _mainMenu.SetActive(true);
+                _hud.SetActive(false);
+                _scoreBoard.SetActive(false);
+                break;
+            case MenuType.MENU_RoomSelect:
+                _roomPanel.SetActive(true);
+                _mainMenu.SetActive(false);
+                _hud.SetActive(false);
+                _scoreBoard.SetActive(false);
+                break;
+            case MenuType.MENU_Scoreboard:
+                _roomPanel.SetActive(false);
+                _mainMenu.SetActive(false);
+                _hud.SetActive(false);
+                _scoreBoard.SetActive(true);
+                break;
+        }
     }
 
     private void OnDestroy()
