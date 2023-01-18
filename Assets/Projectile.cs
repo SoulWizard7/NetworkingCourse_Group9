@@ -1,31 +1,50 @@
+using System;
 using Alteruna;
 using Alteruna.Trinity;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using Avatar = Alteruna.Avatar;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] private float Speed = 10.0f;
+    public Multiplayer multiplayer;
+    public User user;
+    public Spawner spawner;
+    public string ids;
 
-    private Multiplayer _multiplayer;
-    private TransformSynchronizable _transformSynchronizable;
-    private Spawner _spawner;
+    private Rigidbody2DSynchronizable _rb;
 
-    void Start()
+    public void Start()
     {
-        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
-        _transformSynchronizable = GetComponent<TransformSynchronizable>();
-        _spawner = GameObject.Find("Multiplayer").GetComponent<Spawner>();
+        _rb = GetComponent<Rigidbody2DSynchronizable>();
+        //Debug.Log(user.Index);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Update()
     {
-        transform.position += transform.up * Speed * Time.deltaTime;
-        if(Mathf.Abs(transform.position.x) > 20.0f || Mathf.Abs(transform.position.y) > 20.0f)
+        if (user == multiplayer.Me)
         {
-            _spawner.Despawn(gameObject);
+            _rb.position += (Vector2)_rb.transform.up * (8 * Time.deltaTime);
+            
+            Vector2 projPos = Camera.main.WorldToViewportPoint(_rb.position);
+            if(projPos.x > 1.0f || projPos.x < .0f || projPos.y > 1.0f || projPos.y < .0f)
+            {
+                spawner.Despawn(gameObject);
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        var avatar = col.gameObject.GetComponent<Avatar>();
+        if (avatar)
+        {
+            if (!avatar.IsMe)
+            {
+                gameObject.SetActive(false);
+            } 
         }
     }
 }

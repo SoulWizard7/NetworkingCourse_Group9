@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Alteruna;
+using Avatar = Alteruna.Avatar;
 
 public class PlayerController : MonoBehaviour
 {
