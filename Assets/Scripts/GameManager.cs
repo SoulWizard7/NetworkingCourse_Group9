@@ -33,4 +33,10 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Session Started");
         GameStarted = true;
     }
+
+
+    public void SpawnAsteroid()
+    {
+        _spawner.Spawn(2, new Vector3(0, 2, 0));
+    }
 }

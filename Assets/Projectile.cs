@@ -46,5 +46,13 @@ public class Projectile : MonoBehaviour
                 gameObject.SetActive(false);
             } 
         }
+
+        var asteroid = col.gameObject.GetComponent<Asteroid>();
+        if (asteroid)
+        {
+            asteroid.OnAsteroidDestroy();
+        }
+        
+        
     }
 }

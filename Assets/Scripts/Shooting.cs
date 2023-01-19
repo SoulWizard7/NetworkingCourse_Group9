@@ -7,9 +7,9 @@ using Avatar = Alteruna.Avatar;
 
 public class Shooting : MonoBehaviour
 {
-    private Multiplayer multiplayer;
-    private Alteruna.Avatar _avatar;
+    private Multiplayer _multiplayer;
     private Spawner _spawner;
+    private Alteruna.Avatar _avatar;
     
 
     public int score = 0;
@@ -17,10 +17,10 @@ public class Shooting : MonoBehaviour
     void Start()
     {
         _avatar = GetComponent<Alteruna.Avatar>();
-        multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
-        _spawner = multiplayer.GetComponent<Spawner>();
+        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
+        _spawner = _multiplayer.GetComponent<Spawner>();
         
-        multiplayer.RegisterRemoteProcedure("HitFunction", HitFuctionRPC);
+        _multiplayer.RegisterRemoteProcedure("HitFunction", HitFuctionRPC);
     }
 
     // Update is called once per frame
@@ -32,6 +32,18 @@ public class Shooting : MonoBehaviour
         {
             SpawnProjectile();
         }
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            SpawnAsteroid();
+        }
+        
+    }
+    
+    
+    public void SpawnAsteroid()
+    {
+        _spawner.Spawn(2, new Vector3(0, 2, 0));
     }
 
     void SpawnProjectile()
@@ -44,14 +56,14 @@ public class Shooting : MonoBehaviour
         if (!_avatar.IsMe) return;
         Projectile proj = col.gameObject.GetComponent<Projectile>();
 
-        if (proj && proj.user != multiplayer.Me)
+        if (proj && proj.user != _multiplayer.Me)
         {
             ProcedureParameters parameters = new ProcedureParameters();
-            parameters.Set("hitPlayer", multiplayer.Me.Index);
+            parameters.Set("hitPlayer", _multiplayer.Me.Index);
             parameters.Set("projectileOwner", proj.user.Index);
             string id = proj.ids;
             parameters.Set("projectileID", id);
-            multiplayer.InvokeRemoteProcedure("HitFunction", UserId.AllInclusive, parameters);
+            _multiplayer.InvokeRemoteProcedure("HitFunction", UserId.AllInclusive, parameters);
             _spawner.Despawn(col.gameObject);
         }
     }
@@ -64,8 +76,12 @@ public class Shooting : MonoBehaviour
         
         Debug.Log("player " + projectileOwner + " hit player " + hitPlayer);
 
+        if (projectileOwner == _multiplayer.Me)
+        {
+            //UI Update score
+        }
         
-        if (hitPlayer == multiplayer.Me)
+        if (hitPlayer == _multiplayer.Me)
         {
             Debug.Log("I am hit");
         }

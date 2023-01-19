@@ -30,5 +30,18 @@ public class ProjectileHandler : MonoBehaviour
             //p.ids = spawnedGameObject.GetComponent<UniqueID>().UIDString;
             p.spawner = _spawner;
         }
+
+        Asteroid asteroid = spawnedGameObject.GetComponent<Asteroid>();
+        if (asteroid)
+        {
+            asteroid.user = user;
+        }
+
+        AsteroidPowerup ap = spawnedGameObject.GetComponent<AsteroidPowerup>();
+        if (ap)
+        {
+            ap.user = user;
+            ap.multiplayer = _multiplayer;
+        }
     }
 }

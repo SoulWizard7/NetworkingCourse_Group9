@@ -13,6 +13,8 @@ public class Asteroid : MonoBehaviour
     private Spawner _spawner;
 
     Vector3 direction;
+
+    public User user;
     
     void Start()
     {
@@ -28,27 +30,31 @@ public class Asteroid : MonoBehaviour
     {
         if(!GameManager.instance.GameStarted)
             return;
-        
-        if (transform.position.x > 10f)
+
+        if (user == _multiplayer.Me)
         {
-            direction = -transform.right;
-        }
-        else if(transform.position.x < -10f)
-        {
-            direction = transform.right;
+            if (transform.position.x > 10f)
+            {
+                direction = -transform.right;
+            }
+            else if(transform.position.x < -10f)
+            {
+                direction = transform.right;
+            }
+        
+            transform.position += direction  * Speed * Time.deltaTime;
+            transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
         }
         
-        transform.position += direction  * Speed * Time.deltaTime;
-        transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
         
-        if(Input.GetKeyDown(KeyCode.B))
-            OnAsteroidDestroy();
+        
+        //if(Input.GetKeyDown(KeyCode.B)) OnAsteroidDestroy();
     }
 
-    void OnAsteroidDestroy()
+    public void OnAsteroidDestroy()
     {
         _spawner?.Spawn(1, transform.position, transform.rotation);
-        Destroy(gameObject);
+        _spawner.Despawn(gameObject);
     }
 }
 

@@ -13,6 +13,9 @@ public class PlayerController : MonoBehaviour
     private SpriteRenderer _renderer;
 
     private Camera cam;
+    
+    private Multiplayer _multiplayer;
+    private Spawner _spawner;
 
     void Start()
     {
@@ -20,6 +23,9 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
         _avatar = GetComponent<Alteruna.Avatar>();
         _renderer = GetComponent<SpriteRenderer>();
+        
+        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
+        _spawner = _multiplayer.GetComponent<Spawner>();
     }
 
     void Update()
@@ -50,5 +56,24 @@ public class PlayerController : MonoBehaviour
             Vector2 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
             transform.up = mousePos - new Vector2(transform.position.x, transform.position.y);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        AsteroidPowerup ap = col.gameObject.GetComponent<AsteroidPowerup>();
+        if (ap)
+        {
+            Debug.Log("powerup");
+            StartCoroutine(SuperSpeed());
+            _spawner.Despawn(col.gameObject);
+        }
+    }
+
+    IEnumerator SuperSpeed()
+    {
+        float originSpeed = Speed;
+        Speed *= 1.5f;
+        yield return new WaitForSeconds(10);
+        Speed = originSpeed;
     }
 }
