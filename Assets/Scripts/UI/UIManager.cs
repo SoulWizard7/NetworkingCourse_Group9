@@ -166,6 +166,7 @@ public class UIManager : MonoBehaviour
         gameStateInfo.ScoreboardInfo.ForEach(e =>
         {
             var sbPlayer = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
+            sbPlayer.transform.position += new Vector3(0.0f, e.Id * 100, 0.0f);
             sbPlayer.SetPlayerInfo(e.Name, e.Score);
             _scoreBoardPlayers.Add(sbPlayer);
         });

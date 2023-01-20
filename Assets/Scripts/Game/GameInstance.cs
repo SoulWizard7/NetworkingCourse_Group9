@@ -30,12 +30,12 @@ public class ScoreboardComparer : IEqualityComparer<ScoreboardData>
         //Debug.Log($"{x.Id} {y.Id}");
         //Debug.Log($"{x.Name} {y.Name}");
         //Debug.Log($"{x.Score} {y.Score}");
+        //Debug.Log($"Comparison results in: {x.Score == y.Score && x.Name == y.Name && x.Id == y.Id}");
 
         if(object.ReferenceEquals(x, y)) return true;
 
         if(x is null || y is null) return false;
 
-        Debug.Log($"Comparison results in: {x.Score == y.Score && x.Name == y.Name && x.Id == y.Id}");
         return x.Score == y.Score && x.Name == y.Name && x.Id == y.Id;
     }
 

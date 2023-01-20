@@ -7,8 +7,8 @@ using UnityEngine;
 public class GameInstanceSynchronizable : Synchronizable
 {
     private GameInstance _gameInstance;
-    public List<ScoreboardData> Scores = new List<ScoreboardData>();
-    public List<ScoreboardData> OldScores = new List<ScoreboardData>();
+
+    public GameStateInfo GameInfo = new GameStateInfo();
 
     private void Awake()
     {
@@ -30,58 +30,51 @@ public class GameInstanceSynchronizable : Synchronizable
     //Send data
     public override void AssembleData(Writer writer, byte LOD = 100)
     {
-        writer.WriteObject(Scores);
+        writer.WriteObject(GameInfo);
         Debug.Log("Send new Data to other clients!");
     }
 
     //Recieve data
     public override void DisassembleData(Reader reader, byte LOD = 100)
     {
-        Scores = (List<ScoreboardData>)reader.ReadObject();
+        GameInfo = (GameStateInfo)reader.ReadObject();
         Debug.Log("Updated data");
-        OldScores = Scores.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+        _gameInstance.GameStateInfo.State = GameInfo.State;
+        _gameInstance.GameStateInfo.ScoreboardInfo = GameInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+        _gameInstance.GameStateChanged.Invoke(_gameInstance.GameStateInfo);
     }
 
-    bool CompareInfo(List<ScoreboardData> info1, List<ScoreboardData> info2) 
+    bool CompareInfo(GameStateInfo info1, GameStateInfo info2) 
     {
         //If states and gamestate info matches remote and local, return true and do nothing, otherwise return false and adjust
-        if (!info1.Except(info2, new ScoreboardComparer()).Any() && info1.Count == info2.Count)
-        {
-            Debug.Log("Scoreboards dont differ, dont update pls!");
-            return true;
-        } else
-        {
-            return false;
-        }
+        return !info1.ScoreboardInfo.Except(info2.ScoreboardInfo, new ScoreboardComparer()).Any() && info1.ScoreboardInfo.Count == info2.ScoreboardInfo.Count && info1.State == info2.State;
     }
 
     private void OnGUI()
     {
-        GUI.Label(new Rect(50, 50, 200, 200), Scores.Count().ToString());
+        GUI.Label(new Rect(50, 50, 200, 200), GameInfo.ScoreboardInfo.Count().ToString());
     }
 
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.U)) 
         {
-            Scores.Add(new ScoreboardData { Id = 1, Name = "Bruh", Score =  UnityEngine.Random.Range(1, 105)});
+            GameInfo.ScoreboardInfo.Add(new ScoreboardData { Id = 1, Name = "Bruh", Score =  UnityEngine.Random.Range(1, 105)});
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            Scores[1].Score += 10;
-
-            Debug.Log(Scores.Except(OldScores, new ScoreboardComparer()).Any());
-
-            Debug.Log($"Score of index 1 is: {Scores[1].Score}");
+            GameInfo.ScoreboardInfo[1].Score += 10;
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            Scores.RemoveAt(0);
+            GameInfo.ScoreboardInfo.RemoveAt(0);
         }
-        if (!CompareInfo(Scores, OldScores))
+        if (!CompareInfo(GameInfo, _gameInstance.GameStateInfo))
         {
             Debug.Log("Local is newer");
-            OldScores = Scores.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+            _gameInstance.GameStateInfo.State = GameInfo.State;
+            _gameInstance.GameStateInfo.ScoreboardInfo = GameInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+            _gameInstance.GameStateChanged.Invoke(_gameInstance.GameStateInfo);
             Commit();
         }
         base.SyncUpdate();
