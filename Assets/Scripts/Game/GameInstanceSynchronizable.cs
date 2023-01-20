@@ -24,7 +24,7 @@ public class GameInstanceSynchronizable : Synchronizable
     [ContextMenu("Add score to player 1")]
     public void AddScoreToPlayer() 
     {
-
+        _gameInstance.AddPlayerScore(0, 10);
     }
 
     //Send data
