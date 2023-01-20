@@ -28,23 +28,12 @@ public class Shooting : MonoBehaviour
     void Update()
     {
         if (!_avatar.IsMe) return;
-        
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SpawnProjectile();
         }
 
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            SpawnAsteroid();
-        }
-        
-    }
-    
-    
-    public void SpawnAsteroid()
-    {
-        _spawner.Spawn(2, new Vector3(0, 2, 0));
     }
 
     void SpawnProjectile()

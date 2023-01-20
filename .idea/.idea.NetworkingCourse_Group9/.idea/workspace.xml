@@ -4,7 +4,9 @@
     <list default="true" id="0cc8aab8-4222-4157-9af3-0f3925384c88" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.NetworkingCourse_Group9/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.NetworkingCourse_Group9/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Asteroid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Asteroid.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AsteroidPowerup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AsteroidPowerup.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Shooting.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Shooting.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

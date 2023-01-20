@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Alteruna;
 using Alteruna.Trinity;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +15,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private bool gameStarted = false;
+
+    [SerializeField] private float asteroidCDTime = 10f;
+    
+    public bool activeAsteroid = false;
+    private float asteroidTimeSinceDeath = 0;
 
     private void Awake()
     {
@@ -34,9 +40,23 @@ public class GameManager : MonoBehaviour
         GameStarted = true;
     }
 
-
     public void SpawnAsteroid()
     {
         _spawner.Spawn(2, new Vector3(0, 2, 0));
+        activeAsteroid = true;
+    }
+
+    private void Update()
+    {
+        if (!activeAsteroid)
+        {
+            asteroidTimeSinceDeath += Time.deltaTime;
+            if (asteroidTimeSinceDeath >= asteroidCDTime)
+            {
+                SpawnAsteroid();
+                asteroidTimeSinceDeath = 0;
+                activeAsteroid = true;
+            }
+        }
     }
 }
