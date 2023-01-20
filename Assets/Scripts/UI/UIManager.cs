@@ -93,12 +93,14 @@ public class UIManager : MonoBehaviour
             _roomButtons.Clear();
         }
 
+        Debug.Log(multiplayer.AvailableRooms.Count);
+
         foreach (var room in multiplayer.AvailableRooms)
         {
             Button btn = Instantiate(_roomButtonPrefab, _roomPanel.transform);
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             btnText.text = room.Name;
-            btn.transform.position += Vector3.down * 2.0f;
+            btn.transform.position += new Vector3(0.0f, room.ID * -30, 0.0f);
             _roomButtons.Add(btn);
             btn.onClick.AddListener(() => 
             { 
