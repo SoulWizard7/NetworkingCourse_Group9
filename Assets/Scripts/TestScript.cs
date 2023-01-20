@@ -46,5 +46,6 @@ public class TestScript : MonoBehaviour
             multiplayer?.InvokeRemoteProcedure("SpawnProjectileReplicated", UserId.AllInclusive, parameters);
 
         }
+
     }
 }

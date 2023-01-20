@@ -18,6 +18,8 @@ public class ExampleSynchronizable : Synchronizable
         // Set our data to the updated value we have recieved from another player.
         SynchronizedFloat = reader.ReadFloat();
 
+        Debug.Log("READING NEW FLOAT!");
+
         // Save the new data as our old data, otherwise we will immediatly think it changed again.
         _oldSynchronizedFloat = SynchronizedFloat;
     }
@@ -30,11 +32,15 @@ public class ExampleSynchronizable : Synchronizable
 
     private void Update()
     {
+        Debug.Log($"Value is currently: {SynchronizedFloat}");
+
         // If the value of our float has changed, sync it with the other players in our playroom.
         if (SynchronizedFloat != _oldSynchronizedFloat)
         {
             // Store the updated value
             _oldSynchronizedFloat = SynchronizedFloat;
+
+            Debug.Log("Updated Example");
 
             // Tell Alteruna that we want to commit our data.
             Commit();

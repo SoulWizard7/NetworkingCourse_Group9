@@ -8,48 +8,45 @@ public class Asteroid : MonoBehaviour
     [SerializeField] private float Speed = 1.0f;
     [SerializeField] private float asteroidYSin = 1.0f;
     
-    private Multiplayer _multiplayer;
-    private TransformSynchronizable _transformSynchronizable;
-    private Spawner _spawner;
+    public Multiplayer multiplayer;
+    public Spawner spawner;
 
     Vector3 direction;
+
+    public User user;
     
     void Start()
     {
-        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
-        _transformSynchronizable = GetComponent<TransformSynchronizable>();
-        _spawner = GameObject.Find("Multiplayer").GetComponent<Spawner>();
-        
         direction  =-transform.right;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!GameManager.instance.GameStarted)
-            return;
-        
-        if (transform.position.x > 10f)
+        //if(!GameManager.instance.GameStarted) return;
+
+        if (user == multiplayer.Me)
         {
-            direction = -transform.right;
-        }
-        else if(transform.position.x < -10f)
-        {
-            direction = transform.right;
+            if (transform.position.x > 10f)
+            {
+                direction = -transform.right;
+            }
+            else if(transform.position.x < -10f)
+            {
+                direction = transform.right;
+            }
+        
+            transform.position += direction  * Speed * Time.deltaTime;
+            transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
         }
         
-        transform.position += direction  * Speed * Time.deltaTime;
-        transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
+        //if(Input.GetKeyDown(KeyCode.B)) OnAsteroidDestroy();
     }
 
-    void OnAsteroidDestroy()
+    public void OnAsteroidDestroy()
     {
-        _spawner?.Spawn(1, transform.position, transform.rotation);
-        Destroy(gameObject);
-        
-        _spawner?.Spawn(1, transform.position, transform.rotation);
-        GameManager.instance.activeAsteroid = false;
-        _spawner.Despawn(gameObject); 
+        spawner?.Spawn(1, transform.position, transform.rotation);
+        spawner.Despawn(gameObject);
     }
 }
 

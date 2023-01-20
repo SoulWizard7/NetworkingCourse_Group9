@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 72847124219570321}
   - component: {fileID: 1484104220162617365}
   - component: {fileID: 6754667649100471903}
-  - component: {fileID: 9192408814662582494}
+  - component: {fileID: 2545910730234671615}
+  - component: {fileID: 1741227543457005346}
   m_Layer: 0
   m_Name: Asteroid
   m_TagString: Untagged
@@ -76,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ddf2e76e8a1f88f46ae1e42277850b48, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9a04f6cfae75c064997fb1ddf1827c86, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,6 +101,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Speed: 4
+  asteroidYSin: 5
 --- !u!114 &6754667649100471903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,7 +115,33 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   a: af916dfa-9a4c-4095-9ec9-57b39ddb0004
---- !u!114 &9192408814662582494
+--- !u!61 &2545910730234671615
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3013266949029077760}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.67, y: 0.6}
+    newSize: {x: 0.48, y: 0.48}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.55, y: 0.51}
+  m_EdgeRadius: 0
+--- !u!114 &1741227543457005346
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
