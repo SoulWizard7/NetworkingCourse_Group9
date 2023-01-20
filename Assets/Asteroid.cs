@@ -47,8 +47,14 @@ public class Asteroid : MonoBehaviour
 
     void OnAsteroidDestroy()
     {
+<<<<<<< Updated upstream
         _spawner?.Spawn(1, transform.position, transform.rotation);
         Destroy(gameObject);
+=======
+        spawner?.Spawn(1, transform.position, transform.rotation);
+        GameManager.instance.activeAsteroid = false;
+        spawner.Despawn(gameObject);
+>>>>>>> Stashed changes
     }
 }
 

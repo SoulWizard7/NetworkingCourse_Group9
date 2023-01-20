@@ -12,9 +12,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Multiplayer multiplayer;
     [SerializeField] private Spawner _spawner;
 
+    [SerializeField] private float asteroidCDTime = 10f;
+    float asteroidTimeSinceDeath = 0f;
+
     [SerializeField]
     private bool gameStarted = false;
 
+    public bool activeAsteroid = false;
+    
     private void Awake()
     {
         if (instance == null)
@@ -33,4 +38,28 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Session Started");
         GameStarted = true;
     }
+<<<<<<< Updated upstream
+=======
+
+
+    public void SpawnAsteroid()
+    {
+        _spawner.Spawn(2, new Vector3(0, 2, 0));
+        activeAsteroid = true;
+    }
+
+    private void Update()
+    {
+        if (!activeAsteroid)
+        {
+            asteroidTimeSinceDeath += Time.deltaTime;
+            if (asteroidTimeSinceDeath >= asteroidCDTime)
+            {
+                SpawnAsteroid();
+                asteroidTimeSinceDeath = 0;
+                activeAsteroid = true;
+            }
+        }
+    }
+>>>>>>> Stashed changes
 }
