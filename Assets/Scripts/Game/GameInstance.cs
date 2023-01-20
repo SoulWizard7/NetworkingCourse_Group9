@@ -85,7 +85,7 @@ public class GameInstance : MonoBehaviour
         remove => _setupFinished.Remove(value);
     }
 
-    public GameStateInfo GameStateInfo = new GameStateInfo();
+    internal GameStateInfo GameStateInfo = new GameStateInfo();
     public float TimeUntilGameStart = 5.0f;
 
     public Timer _timer;
@@ -135,6 +135,16 @@ public class GameInstance : MonoBehaviour
     {
         GameStateInfo.ScoreboardInfo.Clear();
         GameStateChanged.Invoke(GameStateInfo);
+    }
+
+    public void AddPlayerScore(ushort playerId, int scoreToAdd)
+    {
+        GameStateInfo.ScoreboardInfo.Find(sb => sb.Id == playerId).Score += scoreToAdd;
+    }
+
+    public void SetGameState(GameState gameState)
+    {
+        GameStateInfo.State = gameState;
     }
 
     void HandleUserJoined(Multiplayer multiplayer, User user)

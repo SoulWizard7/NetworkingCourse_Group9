@@ -8,7 +8,7 @@ public class GameInstanceSynchronizable : Synchronizable
 {
     private GameInstance _gameInstance;
 
-    public GameStateInfo GameInfo = new GameStateInfo();
+    internal GameStateInfo GameInfo = new GameStateInfo();
 
     private void Awake()
     {
@@ -41,7 +41,7 @@ public class GameInstanceSynchronizable : Synchronizable
         Debug.Log("Updated data");
         _gameInstance.GameStateInfo.State = GameInfo.State;
         _gameInstance.GameStateInfo.ScoreboardInfo = GameInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
-        _gameInstance.GameStateChanged.Invoke(_gameInstance.GameStateInfo);
+        _gameInstance.GameStateChanged.Invoke(GameInfo);
     }
 
     bool CompareInfo(GameStateInfo info1, GameStateInfo info2) 
@@ -59,21 +59,21 @@ public class GameInstanceSynchronizable : Synchronizable
     {
         if(Input.GetKeyDown(KeyCode.U)) 
         {
-            GameInfo.ScoreboardInfo.Add(new ScoreboardData { Id = 1, Name = "Bruh", Score =  UnityEngine.Random.Range(1, 105)});
+            _gameInstance.SetGameState(GameState.GAME_RUNNING);
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
-            GameInfo.ScoreboardInfo[1].Score += 10;
+            _gameInstance.AddPlayerScore(1, 10);
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            GameInfo.ScoreboardInfo.RemoveAt(0);
+            _gameInstance.AddPlayerScore(0, 20);
         }
         if (!CompareInfo(GameInfo, _gameInstance.GameStateInfo))
         {
             Debug.Log("Local is newer");
-            _gameInstance.GameStateInfo.State = GameInfo.State;
-            _gameInstance.GameStateInfo.ScoreboardInfo = GameInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+            GameInfo.State = _gameInstance.GameStateInfo.State;
+            GameInfo.ScoreboardInfo = _gameInstance.GameStateInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
             _gameInstance.GameStateChanged.Invoke(_gameInstance.GameStateInfo);
             Commit();
         }
