@@ -135,6 +135,7 @@ public class GameInstance : MonoBehaviour
     {
         GameStateInfo.ScoreboardInfo.Clear();
         GameStateChanged.Invoke(GameStateInfo);
+        _timer = new Timer(RefreshAvailableRooms, null, 0, 2000);
     }
 
     public void AddPlayerScore(ushort playerId, int scoreToAdd)
