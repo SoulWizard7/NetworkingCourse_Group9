@@ -47,7 +47,5 @@ public class TestScript : MonoBehaviour
 
         }
 
-        Vector3 mousePosWorld = Camera.main.ScreenToWorldPoint(new Vector3(100.0f, 100.0f));
-        Debug.Log(mousePosWorld);
     }
 }
