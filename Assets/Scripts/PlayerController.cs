@@ -30,8 +30,8 @@ public class PlayerController : MonoBehaviour
 
         _avatar = GetComponent<Alteruna.Avatar>();
         _renderer = GetComponent<SpriteRenderer>();
-        
-        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
+
+        _multiplayer = _gameInstance.Multiplayer;
         _spawner = _multiplayer.GetComponent<Spawner>();
     }
 

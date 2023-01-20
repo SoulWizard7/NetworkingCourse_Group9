@@ -12,10 +12,8 @@ public class ProjectileHandler : MonoBehaviour
     private Spawner _spawner;
     private int poolSize;
 
-    public Dictionary<User, GameObject> spawnedProjectiles;
     void Start()
     {
-        spawnedProjectiles = new Dictionary<User, GameObject>();
         _spawner = GetComponent<Spawner>();
         _multiplayer = GetComponent<Multiplayer>();
     }

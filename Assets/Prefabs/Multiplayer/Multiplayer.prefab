@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6829697717139946765}
+  - component: {fileID: 7490157495920264988}
   - component: {fileID: 6829697717139946764}
   - component: {fileID: 6829697717139946755}
   m_Layer: 0
@@ -33,6 +34,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7490157495920264988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6829697717139946767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adfd2c2134b710f418372cea43ce2a5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6829697717139946764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,10 +60,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Multiplayer: {fileID: 0}
   SpawnableObjects:
-  - {fileID: 2603026740779176569, guid: c71a4753b2117334a91d48146f48670c, type: 3}
+  - {fileID: 2603026740779176569, guid: d14941d3044e42c44bc164d9208d07ff, type: 3}
+  - {fileID: 6183917393961980450, guid: b6499366a54dd2543891067b0619a4ba, type: 3}
+  - {fileID: 3013266949029077760, guid: 83bac94d60017334a8e3c0b6fcdaa37f, type: 3}
   ObjectSpawned:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7490157495920264988}
+        m_TargetAssemblyTypeName: ProjectileHandler, Assembly-CSharp
+        m_MethodName: SetProjectileData
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   ObjectDespawned:
     m_PersistentCalls:
       m_Calls: []

@@ -11,15 +11,16 @@ public class Shooting : MonoBehaviour
     private Spawner _spawner;
     private Alteruna.Avatar _avatar;
     
+    private GameInstance _gameInstance;
 
     public int score = 0;
 
     void Start()
     {
-        _avatar = GetComponent<Alteruna.Avatar>();
-        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
+        _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
+        _multiplayer = _gameInstance.Multiplayer;
         _spawner = _multiplayer.GetComponent<Spawner>();
-        
+        _avatar = GetComponent<Alteruna.Avatar>();
         _multiplayer.RegisterRemoteProcedure("HitFunction", HitFuctionRPC);
     }
 
@@ -78,7 +79,7 @@ public class Shooting : MonoBehaviour
 
         if (projectileOwner == _multiplayer.Me)
         {
-            //UI Update score
+            _gameInstance.AddPlayerScore(projectileOwner, 1);
         }
         
         if (hitPlayer == _multiplayer.Me)
