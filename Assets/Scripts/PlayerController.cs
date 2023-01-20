@@ -17,10 +17,17 @@ public class PlayerController : MonoBehaviour
     private Multiplayer _multiplayer;
     private Spawner _spawner;
 
+    private UIManager _uiManager;
+    private GameInstance _gameInstance;
+
     void Start()
     {
+        _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
+        _uiManager = GameObject.Find("UI").GetComponent<UIManager>();
         cam = Camera.main;
+ 
         Cursor.lockState = CursorLockMode.Confined;
+
         _avatar = GetComponent<Alteruna.Avatar>();
         _renderer = GetComponent<SpriteRenderer>();
         
@@ -33,7 +40,22 @@ public class PlayerController : MonoBehaviour
         if (_avatar.IsMe)
         {
             _renderer.color = Color.green;
-                
+
+            if(Input.GetKeyDown(KeyCode.Tab) && _gameInstance.GameStateInfo.State != GameState.GAME_STOPPED)
+            {
+                _uiManager.ShowMenu(MenuType.MENU_Scoreboard);
+            }
+
+            if(Input.GetKeyUp(KeyCode.Tab) && _gameInstance.GameStateInfo.State != GameState.GAME_STOPPED) 
+            {
+                _uiManager.ShowMenu(MenuType.MENU_IngameHUD);
+            }
+
+            if(Input.GetKeyDown(KeyCode.Escape))
+            {
+                _uiManager.ShowMenu(MenuType.MENU_PauseMenu);
+            }
+
             //Movement
             float _moveVertical = Input.GetAxis("Vertical") * Speed;
             float _moveHorizontal = Input.GetAxis("Horizontal") * Speed;
