@@ -8,9 +8,8 @@ public class Asteroid : MonoBehaviour
     [SerializeField] private float Speed = 1.0f;
     [SerializeField] private float asteroidYSin = 1.0f;
     
-    private Multiplayer _multiplayer;
-    private TransformSynchronizable _transformSynchronizable;
-    private Spawner _spawner;
+    public Multiplayer multiplayer;
+    public Spawner spawner;
 
     Vector3 direction;
 
@@ -18,10 +17,6 @@ public class Asteroid : MonoBehaviour
     
     void Start()
     {
-        _multiplayer = GameObject.Find("Multiplayer").GetComponent<Multiplayer>();
-        _transformSynchronizable = GetComponent<TransformSynchronizable>();
-        _spawner = GameObject.Find("Multiplayer").GetComponent<Spawner>();
-        
         direction  =-transform.right;
     }
 
@@ -31,7 +26,7 @@ public class Asteroid : MonoBehaviour
         if(!GameManager.instance.GameStarted)
             return;
 
-        if (user == _multiplayer.Me)
+        if (user == multiplayer.Me)
         {
             if (transform.position.x > 10f)
             {
@@ -46,15 +41,13 @@ public class Asteroid : MonoBehaviour
             transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
         }
         
-        
-        
         //if(Input.GetKeyDown(KeyCode.B)) OnAsteroidDestroy();
     }
 
     public void OnAsteroidDestroy()
     {
-        _spawner?.Spawn(1, transform.position, transform.rotation);
-        _spawner.Despawn(gameObject);
+        spawner?.Spawn(1, transform.position, transform.rotation);
+        spawner.Despawn(gameObject);
     }
 }
 

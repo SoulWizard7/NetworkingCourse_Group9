@@ -65,6 +65,7 @@ public class Shooting : MonoBehaviour
             string id = proj.ids;
             parameters.Set("projectileID", id);
             _multiplayer.InvokeRemoteProcedure("HitFunction", UserId.AllInclusive, parameters);
+            
             _spawner.Despawn(col.gameObject);
         }
     }

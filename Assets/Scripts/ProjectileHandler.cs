@@ -33,6 +33,8 @@ public class ProjectileHandler : MonoBehaviour
         if (asteroid)
         {
             asteroid.user = user;
+            asteroid.multiplayer = _multiplayer;
+            asteroid.spawner = _spawner;
         }
 
         AsteroidPowerup ap = spawnedGameObject.GetComponent<AsteroidPowerup>();

@@ -19,6 +19,8 @@ public class AsteroidPowerup : MonoBehaviour
 
     void Update()
     {
+        if (!_rb) return;
+            
         if (user == multiplayer.Me)
         {
             _rb.position += new Vector2(0, -powerupSpeed * Time.deltaTime);

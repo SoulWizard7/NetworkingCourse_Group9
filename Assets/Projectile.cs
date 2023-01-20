@@ -24,6 +24,7 @@ public class Projectile : MonoBehaviour
 
     public void Update()
     {
+        if (!_rb) return;
         if (user == multiplayer.Me)
         {
             _rb.position += (Vector2)_rb.transform.up * (8 * Time.deltaTime);
