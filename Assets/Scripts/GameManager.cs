@@ -38,8 +38,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Session Started");
         GameStarted = true;
     }
-<<<<<<< Updated upstream
-=======
 
 
     public void SpawnAsteroid()
@@ -61,5 +59,4 @@ public class GameManager : MonoBehaviour
             }
         }
     }
->>>>>>> Stashed changes
 }

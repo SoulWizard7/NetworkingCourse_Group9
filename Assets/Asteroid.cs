@@ -40,21 +40,16 @@ public class Asteroid : MonoBehaviour
         
         transform.position += direction  * Speed * Time.deltaTime;
         transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
-        
-        if(Input.GetKeyDown(KeyCode.B))
-            OnAsteroidDestroy();
     }
 
     void OnAsteroidDestroy()
     {
-<<<<<<< Updated upstream
         _spawner?.Spawn(1, transform.position, transform.rotation);
         Destroy(gameObject);
-=======
-        spawner?.Spawn(1, transform.position, transform.rotation);
+        
+        _spawner?.Spawn(1, transform.position, transform.rotation);
         GameManager.instance.activeAsteroid = false;
-        spawner.Despawn(gameObject);
->>>>>>> Stashed changes
+        _spawner.Despawn(gameObject); 
     }
 }
 
