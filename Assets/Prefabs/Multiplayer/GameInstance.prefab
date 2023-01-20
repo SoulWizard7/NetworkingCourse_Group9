@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7767182574779028653}
-  - component: {fileID: 7767182574779028658}
-  - component: {fileID: 7767182574779028659}
-  - component: {fileID: 7767182574779028652}
+  - component: {fileID: 4776703516395195161}
+  - component: {fileID: 6699056164820304267}
+  - component: {fileID: 3084713145576049792}
   m_Layer: 0
   m_Name: GameInstance
   m_TagString: Untagged
@@ -34,7 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7767182574779028658
+--- !u!114 &4776703516395195161
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,15 +46,15 @@ MonoBehaviour:
   m_Script: {fileID: 1709514741, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  a: f1eec638-3e76-4012-9996-03356864c60b
---- !u!114 &7767182574779028659
+  a: ba76130c-33c9-4009-8a35-38f6422dccbc
+--- !u!114 &6699056164820304267
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7767182574779028655}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f95a8f16cb17133498838da9a41c1b9f, type: 3}
   m_Name: 
@@ -97,8 +97,10 @@ MonoBehaviour:
     LastUpdated: 0
     NeverString: Never
     RealtimeString: Realtime
-  State: 3
---- !u!114 &7767182574779028652
+  _gameInfo:
+    State: 3
+    ScoreboardInfo: []
+--- !u!114 &3084713145576049792
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MultiplayerPrefab: {fileID: 6829697717139946755, guid: 5c9b6a1448ea57f4fb88f6aa65563c2c, type: 3}
-  ExamplePrefab: {fileID: 2825387319203516699, guid: 6e4da5ab8b9d67847bd9c59f7292b5ac, type: 3}
-  _gameInstanceSynchronizable: {fileID: 7767182574779028659}
-  State: 3
+  GameStateInfo:
+    State: 3
+    ScoreboardInfo: []
   TimeUntilGameStart: 5

@@ -15,13 +15,6 @@ public enum MenuType
     MENU_Scoreboard
 }
 
-internal struct ScoreboardData
-{
-    internal ushort Id;
-    internal string Name;
-    internal string Score;
-}
-
 public class UIManager : MonoBehaviour
 {
     public int PlayerCount = 4;
@@ -38,6 +31,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button _startButton;
     [SerializeField] private TMP_Text _gameStateText;
     [SerializeField] private TMP_Text _playerCountText;
+    [SerializeField] private GameObject _pauseMenu;
+    [SerializeField] private Button _resumeButton;
+    [SerializeField] private Button _leaveButton;
     
     private List<ScoreboardPlayer> _scoreBoardPlayers = new List<ScoreboardPlayer>();
     private GameInstance _gameInstance;
@@ -55,9 +51,21 @@ public class UIManager : MonoBehaviour
     {
         _selfCanvas = GetComponent<Canvas>();
 
+        SetupButtonListeners();
+    }
+
+    void SetupButtonListeners()
+    {
+        _startButton.onClick.AddListener(() =>
+        {
+            _gameInstance.Multiplayer.JoinOnDemandRoom();
+            ShowMenu(MenuType.MENU_IngameHUD);
+            _timer?.Dispose();
+        });
+
         _playerCountSlider.value = PlayerCount;
         _playerCountText.text = _playerCountSlider.value.ToString();
-        _playerCountSlider.onValueChanged.AddListener(e => { 
+        _playerCountSlider.onValueChanged.AddListener(e => {
             PlayerCount = (int)e;
             _playerCountText.text = PlayerCount.ToString();
         });
@@ -69,12 +77,11 @@ public class UIManager : MonoBehaviour
             _gameInstance.OnConnected += SetupListeners;
         });
 
-    }
-
-    public void UpdateScoreForPlayer(int playerIndex, int newScore)
-    {
-        _scoreBoardPlayers[playerIndex].UpdateScore(newScore);
-        Debug.Log(playerIndex.ToString());
+        _resumeButton.onClick.AddListener(() => ShowMenu(MenuType.MENU_IngameHUD));
+        _leaveButton.onClick.AddListener(() =>
+        {
+            _gameInstance.Multiplayer.CurrentRoom.Leave();
+        });
     }
 
     void ShowAvailableRooms(Multiplayer multiplayer)
@@ -105,63 +112,9 @@ public class UIManager : MonoBehaviour
 
     void SetupListeners()
     {
-        _startButton.onClick.AddListener(() =>
-        {
-            _gameInstance.Multiplayer.JoinOnDemandRoom();
-            ShowMenu(MenuType.MENU_IngameHUD);
-            _timer?.Dispose();
-        });
-
-        _gameInstance.GameStateChanged.AddListener(newState => _gameStateText.text = newState.ToString());
-
-        _gameInstance.Multiplayer.RoomJoined.AddListener((multiplayer, room, user) =>
-        {
-            //room.Users.ForEach(e => _playerHUD[room.Users.Count - 1].text = e.Name);
-            room.Users.ForEach(u =>
-            {
-                var newSbPlayer = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
-                newSbPlayer.transform.position += new Vector3(0.0f, 10.0f * (user.Index + 1), 0.0f);
-                newSbPlayer.SetPlayerInfo(u.Name, 0);
-                _scoreBoardPlayers.Add(newSbPlayer);
-            });
-
-            _gameInstance.ScoresUpdated.AddListener(scoresUpdated =>
-            {
-                foreach (var score in scoresUpdated)
-                {
-                    UpdateScoreForPlayer(score.Key, score.Value);
-                }
-
-                Debug.Log("Updating scores on HUD!");
-            });
-
-            _timer?.Dispose();
-            _selfCanvas.gameObject.SetActive(true);
-        });
-
-        _gameInstance.Multiplayer.RoomLeft.AddListener(multiplayer =>
-        {
-            _scoreBoardPlayers.ForEach(sb => Destroy(sb.gameObject));
-            _scoreBoardPlayers.Clear();
-            _selfCanvas.gameObject.SetActive(false);
-        });
-
-        _gameInstance.Multiplayer.OtherUserJoined.AddListener((multiplayer, user) =>
-        {
-            var newSbItem = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
-            newSbItem.transform.position += new Vector3(0.0f, 10.0f * user.Index, 0.0f);
-            newSbItem.SetPlayerInfo(user.Name, 0);
-            _scoreBoardPlayers.Add(newSbItem);
-        });
-
-        _gameInstance.Multiplayer.OtherUserLeft.AddListener((multiplayer, user) =>
-        {
-            var sbItem = _scoreBoardPlayers.Find(sb => sb.name == user.Name);
-            Destroy(sbItem.gameObject);
-            _scoreBoardPlayers.Remove(sbItem);
-        });
-
         _gameInstance.Multiplayer.RoomListUpdated.AddListener(ShowAvailableRooms);
+        _gameInstance.Multiplayer.RoomLeft.AddListener(mp => ShowMenu(MenuType.MENU_RoomSelect));
+        _gameInstance.GameStateChanged.AddListener(RedrawHUD);
     }
 
     public void ShowMenu(MenuType menuType)
@@ -173,26 +126,57 @@ public class UIManager : MonoBehaviour
                 _mainMenu.SetActive(false);
                 _hud.SetActive(true);
                 _scoreBoard.SetActive(false);
+                _pauseMenu.SetActive(false);
                 break;
             case MenuType.MENU_MainMenu:
                 _roomPanel.SetActive(false);
                 _mainMenu.SetActive(true);
                 _hud.SetActive(false);
                 _scoreBoard.SetActive(false);
+                _pauseMenu.SetActive(false);
                 break;
             case MenuType.MENU_RoomSelect:
                 _roomPanel.SetActive(true);
                 _mainMenu.SetActive(false);
                 _hud.SetActive(false);
                 _scoreBoard.SetActive(false);
+                _pauseMenu.SetActive(false);
                 break;
             case MenuType.MENU_Scoreboard:
                 _roomPanel.SetActive(false);
                 _mainMenu.SetActive(false);
                 _hud.SetActive(false);
                 _scoreBoard.SetActive(true);
+                _pauseMenu.SetActive(false);
+                break;
+            case MenuType.MENU_PauseMenu:
+                _pauseMenu.SetActive(true);
+                _roomPanel.SetActive(false);
+                _mainMenu.SetActive(false);
+                _hud.SetActive(false);
+                _scoreBoard.SetActive(false);
                 break;
         }
+    }
+
+    void RedrawHUD(GameStateInfo gameStateInfo)
+    {
+        _scoreBoardPlayers.ForEach(e => Destroy(e.gameObject));
+        _scoreBoardPlayers.Clear();
+        gameStateInfo.ScoreboardInfo.ForEach(e =>
+        {
+            var sbPlayer = Instantiate(_sbPlayerPrefab, _scoreBoard.transform);
+            sbPlayer.SetPlayerInfo(e.Name, e.Score);
+            _scoreBoardPlayers.Add(sbPlayer);
+        });
+        _gameStateText.text = gameStateInfo.State.ToString();
+
+        Debug.Log("Redrawing HUD!");
+    }
+
+    void UpdateScoreForPlayer(int playerIndex, int newScore)
+    {
+        _scoreBoardPlayers[playerIndex].UpdateScore(newScore);
     }
 
     private void OnDestroy()

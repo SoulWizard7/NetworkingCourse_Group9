@@ -15,6 +15,57 @@ public enum GameState
     GAME_WAITING_TO_START
 }
 
+[Serializable]
+public class ScoreboardData
+{
+    public ushort Id;
+    public string Name;
+    public int Score;
+}
+
+public class ScoreboardComparer : IEqualityComparer<ScoreboardData>
+{
+    public bool Equals(ScoreboardData x, ScoreboardData y)
+    {
+        //Debug.Log($"{x.Id} {y.Id}");
+        //Debug.Log($"{x.Name} {y.Name}");
+        //Debug.Log($"{x.Score} {y.Score}");
+
+        if(object.ReferenceEquals(x, y)) return true;
+
+        if(x is null || y is null) return false;
+
+        Debug.Log($"Comparison results in: {x.Score == y.Score && x.Name == y.Name && x.Id == y.Id}");
+        return x.Score == y.Score && x.Name == y.Name && x.Id == y.Id;
+    }
+
+    public int GetHashCode(ScoreboardData obj)
+    {
+        ReferenceEquals(obj, null);
+
+        int hashId = obj.Id.GetHashCode();
+
+        int hashName = obj.Name == null ? 0 : obj.Name.GetHashCode();
+
+        int hashScore = obj.Score.GetHashCode();
+
+        return hashId ^ hashName ^ hashScore;
+    }
+}
+
+[Serializable]
+public class GameStateInfo
+{
+    public GameState State;
+    public List<ScoreboardData> ScoreboardInfo;
+
+    public GameStateInfo()
+    {
+        ScoreboardInfo= new List<ScoreboardData>();
+        State = GameState.GAME_WAITING_FOR_PLAYERS;
+    }
+}
+
 [RequireComponent(typeof(GameInstanceSynchronizable))]
 public class GameInstance : MonoBehaviour
 {
@@ -23,7 +74,7 @@ public class GameInstance : MonoBehaviour
     private List<SetupFinished> _setupFinished = new List<SetupFinished>();
 
     private TextChatSynchronizable _textChat;
-    private GameInstanceSynchronizable _gameInstanceSynchronizable;
+    private GameInstanceSynchronizable _gameStateSynchronizable;
 
     public List<User> Users { get => Multiplayer.GetUsers(); }
     public delegate void SetupFinished();
@@ -34,18 +85,18 @@ public class GameInstance : MonoBehaviour
         remove => _setupFinished.Remove(value);
     }
 
-    public GameState State = GameState.GAME_WAITING_FOR_PLAYERS;
+    public GameStateInfo GameStateInfo = new GameStateInfo();
     public float TimeUntilGameStart = 5.0f;
 
     public Timer _timer;
 
-    internal UnityEvent<GameState> GameStateChanged = new UnityEvent<GameState>();
+    internal UnityEvent<GameStateInfo> GameStateChanged = new UnityEvent<GameStateInfo>();
     internal UnityEvent<Dictionary<ushort, int>> ScoresUpdated = new UnityEvent<Dictionary<ushort, int>>();
     internal Multiplayer Multiplayer;
 
     private void Awake()
     {
-        _gameInstanceSynchronizable = GetComponent<GameInstanceSynchronizable>();
+        _gameStateSynchronizable = GetComponent<GameInstanceSynchronizable>();
     }
 
     internal void Setup(string name, int playerCount)
@@ -55,31 +106,17 @@ public class GameInstance : MonoBehaviour
         Multiplayer.MaxPlayers = (ushort)playerCount;
         Multiplayer.Connected.AddListener(SetupMultiplayerListeners);
         Multiplayer.Disconnected.AddListener((mp, endpoint) => Debug.Log("DISCONNECTED"));
-        _gameInstanceSynchronizable.enabled = true;
-        _gameInstanceSynchronizable.GameStateChanged.AddListener(state => { State = state; GameStateChanged.Invoke(state); });
-        _gameInstanceSynchronizable.ScoreChanged.AddListener(scores => ScoresUpdated.Invoke(scores));
-        Debug.LogWarning("SETUP!");
+        _gameStateSynchronizable.enabled = true;
     }
 
     void SetupMultiplayerListeners(Multiplayer multiplayer, Endpoint endpoint)
     {
-        Debug.Log("CONNECTED!!");
 
         Multiplayer.OtherUserJoined.AddListener(HandleUserJoined);
 
-        Multiplayer.RoomJoined.AddListener((multiplayer, room, user) =>
-        {
-            State = GameState.GAME_WAITING_FOR_PLAYERS;
-            _timer?.Dispose();
-            multiplayer.GetUsers().ForEach(u => Debug.Log(u.Name));
-            _gameInstanceSynchronizable._scores.Add(user.Index, 0);
-            GameStateChanged.Invoke(State);
-        });
+        Multiplayer.RoomJoined.AddListener(HandleRoomJoined);
 
-        Multiplayer.RoomLeft.AddListener(multiplayer =>
-        {
-            
-        });
+        Multiplayer.RoomLeft.AddListener(HandleRoomLeft);
 
         Multiplayer.OtherUserLeft.AddListener(HandleUserLeft);
 
@@ -87,10 +124,21 @@ public class GameInstance : MonoBehaviour
         _setupFinished.ForEach(e => e());
     }
 
+    void HandleRoomJoined(Multiplayer multiplayer, Room room, User user)
+    {
+        _timer?.Dispose();
+        room.Users.ForEach(user => GameStateInfo.ScoreboardInfo.Add(new ScoreboardData { Id = user.Index, Name = user.Name, Score = 0 }));
+        GameStateChanged.Invoke(GameStateInfo);
+    }
+
+    void HandleRoomLeft(Multiplayer multiplayer) 
+    {
+        GameStateInfo.ScoreboardInfo.Clear();
+        GameStateChanged.Invoke(GameStateInfo);
+    }
+
     void HandleUserJoined(Multiplayer multiplayer, User user)
     {
-        multiplayer.GetUsers().ForEach(u => Debug.Log(u.Name));
-        _gameInstanceSynchronizable._scores.Add(user.Index, 0);
         if (multiplayer.GetUsers().Count == multiplayer.MaxPlayers)
         {
             TryStartGame();
@@ -99,8 +147,8 @@ public class GameInstance : MonoBehaviour
 
     void HandleUserLeft(Multiplayer multiplayer, User user)
     {
-        multiplayer.GetUsers().ForEach(u => Debug.Log(u.Name));
-        _gameInstanceSynchronizable._scores.Remove(user.Index);
+        GameStateInfo.ScoreboardInfo.Remove(GameStateInfo.ScoreboardInfo.Find(i => i.Id == user.Index));
+        GameStateChanged.Invoke(GameStateInfo);
         if (multiplayer.GetUsers().Count != multiplayer.MaxPlayers)
         {
             AbortGameStart();
@@ -114,22 +162,22 @@ public class GameInstance : MonoBehaviour
 
     private void TryStartGame()
     {
-        State = GameState.GAME_WAITING_TO_START;
-        GameStateChanged.Invoke(State);
+        GameStateInfo.State = GameState.GAME_WAITING_TO_START;
+        GameStateChanged.Invoke(GameStateInfo);
         _timer = new Timer(StartGame, null, (int)TimeUntilGameStart, 0);
     }
 
     private void AbortGameStart()
     {
-        State = GameState.GAME_WAITING_FOR_PLAYERS;
-        GameStateChanged.Invoke(State);
+        GameStateInfo.State = GameState.GAME_WAITING_FOR_PLAYERS;
+        GameStateChanged.Invoke(GameStateInfo);
         _timer?.Dispose();
     }
 
     private void StartGame(object state)
     {
-        State = GameState.GAME_RUNNING;
-        GameStateChanged.Invoke(State);
+        GameStateInfo.State = GameState.GAME_RUNNING;
+        GameStateChanged.Invoke(GameStateInfo);
         _timer?.Dispose();
     }
 }

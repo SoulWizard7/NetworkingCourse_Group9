@@ -1,93 +1,89 @@
 using Alteruna;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class GameInstanceSynchronizable : Synchronizable
 {
-    public Dictionary<ushort, int> _scores = new Dictionary<ushort, int>();
-    private Dictionary<ushort, int> _oldscores = new Dictionary<ushort, int>();
+    private GameInstance _gameInstance;
+    public List<ScoreboardData> Scores = new List<ScoreboardData>();
+    public List<ScoreboardData> OldScores = new List<ScoreboardData>();
 
-    public GameState State = GameState.GAME_WAITING_FOR_PLAYERS;
-    private GameState _oldState;
-
-    internal UnityEvent<GameState> GameStateChanged = new UnityEvent<GameState>();
-    internal UnityEvent<Dictionary<ushort, int>> ScoreChanged = new UnityEvent<Dictionary<ushort, int>>();
-
-    [ContextMenu("Update player 1 Score")]
-    public void UpdatePlayerOneScore()
+    private void Awake()
     {
-        _scores[0] += 10;
-    }
-
-    [ContextMenu("Update player 2 Score")]
-    public void UpdatePlayerTwoScore()
-    {
-        _scores[1] += 10;
+        _gameInstance = GetComponent<GameInstance>();
     }
 
     [ContextMenu("Change game state to running")]
     public void UpdateGameState()
     {
-        State = GameState.GAME_RUNNING;
+
     }
 
+    [ContextMenu("Add score to player 1")]
+    public void AddScoreToPlayer() 
+    {
+
+    }
+
+    //Send data
     public override void AssembleData(Writer writer, byte LOD = 100)
     {
-        writer.WriteObject(State);
-        writer.WriteObject(_scores);
-        Debug.Log("Assemble");
+        writer.WriteObject(Scores);
+        Debug.Log("Send new Data to other clients!");
     }
 
+    //Recieve data
     public override void DisassembleData(Reader reader, byte LOD = 100)
     {
-        State = (GameState)reader.ReadObject();
-        _scores = (Dictionary<ushort, int>)reader.ReadObject();
+        Scores = (List<ScoreboardData>)reader.ReadObject();
+        Debug.Log("Updated data");
+        OldScores = Scores.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+    }
 
-        if(State != _oldState)
+    bool CompareInfo(List<ScoreboardData> info1, List<ScoreboardData> info2) 
+    {
+        //If states and gamestate info matches remote and local, return true and do nothing, otherwise return false and adjust
+        if (!info1.Except(info2, new ScoreboardComparer()).Any() && info1.Count == info2.Count)
         {
-            _oldState = State;
-            Debug.Log("State update local!");
-            GameStateChanged.Invoke(State);
-        }
-
-        Debug.LogWarning(_scores.Count);
-
-        if (_scores.Except(_oldscores).Any())
+            Debug.Log("Scoreboards dont differ, dont update pls!");
+            return true;
+        } else
         {
-            _oldscores.Clear();
-            _oldscores.AddRange(_scores);
-            ScoreChanged.Invoke(_scores);
-            Debug.Log("Receive scores!");
+            return false;
         }
+    }
+
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(50, 50, 200, 200), Scores.Count().ToString());
     }
 
     private void Update()
     {
-        if(State != _oldState)
+        if(Input.GetKeyDown(KeyCode.U)) 
         {
-            _oldState = State;
-            GameStateChanged.Invoke(State);
-            Debug.Log("State update remote!");
+            Scores.Add(new ScoreboardData { Id = 1, Name = "Bruh", Score =  UnityEngine.Random.Range(1, 105)});
+        }
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Scores[1].Score += 10;
+
+            Debug.Log(Scores.Except(OldScores, new ScoreboardComparer()).Any());
+
+            Debug.Log($"Score of index 1 is: {Scores[1].Score}");
+        }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Scores.RemoveAt(0);
+        }
+        if (!CompareInfo(Scores, OldScores))
+        {
+            Debug.Log("Local is newer");
+            OldScores = Scores.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
             Commit();
         }
-
-        if(Input.GetKeyDown(KeyCode.T))
-        {
-            _scores[0] += 15;
-        }
-
-        if(_scores.Except(_oldscores).Any())
-        {
-            _oldscores.Clear();
-            _oldscores.AddRange(_scores);
-            ScoreChanged.Invoke(_scores);
-            Debug.Log("Submit scores!");
-            Commit();
-        }
-        
         base.SyncUpdate();
     }
 }
