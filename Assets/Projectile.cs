@@ -43,7 +43,7 @@ public class Projectile : MonoBehaviour
         {
             if (!avatar.IsMe)
             {
-                gameObject.SetActive(false);
+                //gameObject.SetActive(false);
             } 
         }
 
