@@ -88,11 +88,10 @@ public class GameInstance : MonoBehaviour
     internal GameStateInfo GameStateInfo = new GameStateInfo();
     public float TimeUntilGameStart = 5.0f;
 
-    public Timer _timer;
-
     internal UnityEvent<GameStateInfo> GameStateChanged = new UnityEvent<GameStateInfo>();
     internal UnityEvent<Dictionary<ushort, int>> ScoresUpdated = new UnityEvent<Dictionary<ushort, int>>();
     internal Multiplayer Multiplayer;
+    private bool ShouldRefreshRooms = true;
 
     private void Awake()
     {
@@ -120,13 +119,15 @@ public class GameInstance : MonoBehaviour
 
         Multiplayer.OtherUserLeft.AddListener(HandleUserLeft);
 
-        _timer = new Timer(RefreshAvailableRooms, null, 0, 2000);
+        ShouldRefreshRooms = true;
         _setupFinished.ForEach(e => e());
+
+        StartCoroutine(nameof(RefreshRooms));
     }
 
     void HandleRoomJoined(Multiplayer multiplayer, Room room, User user)
     {
-        _timer?.Dispose();
+        ShouldRefreshRooms = false;
         Debug.LogWarning($"Joined room: {room.Name} with playercount of: {room.Users.Count} / {room.MaxUsers}");
         room.Users.ForEach(user => GameStateInfo.ScoreboardInfo.Add(new ScoreboardData { Id = user.Index, Name = user.Name, Score = 0 }));
         GameStateChanged.Invoke(GameStateInfo);
@@ -136,7 +137,8 @@ public class GameInstance : MonoBehaviour
     {
         GameStateInfo.ScoreboardInfo.Clear();
         GameStateChanged.Invoke(GameStateInfo);
-        _timer = new Timer(RefreshAvailableRooms, null, 0, 2000);
+        ShouldRefreshRooms = true;
+        StartCoroutine(nameof(RefreshRooms));
     }
 
     public void AddPlayerScore(ushort playerId, int scoreToAdd)
@@ -167,7 +169,7 @@ public class GameInstance : MonoBehaviour
         }
     }
 
-    private void RefreshAvailableRooms(object state)
+    private void RefreshAvailableRooms()
     {
         Multiplayer.RefreshRoomList();
     }
@@ -176,20 +178,31 @@ public class GameInstance : MonoBehaviour
     {
         GameStateInfo.State = GameState.GAME_WAITING_TO_START;
         GameStateChanged.Invoke(GameStateInfo);
-        _timer = new Timer(StartGame, null, (int)TimeUntilGameStart, 0);
+        ShouldRefreshRooms = false;
+    }
+
+    IEnumerator RefreshRooms()
+    {
+        Debug.Log(ShouldRefreshRooms);
+        while(ShouldRefreshRooms)
+        {
+            yield return new WaitForSecondsRealtime(2.0f);
+            Debug.Log("Refreshing Rooms");
+            RefreshAvailableRooms();
+        }
     }
 
     private void AbortGameStart()
     {
         GameStateInfo.State = GameState.GAME_WAITING_FOR_PLAYERS;
         GameStateChanged.Invoke(GameStateInfo);
-        _timer?.Dispose();
+        ShouldRefreshRooms = false;
     }
 
     private void StartGame(object state)
     {
         GameStateInfo.State = GameState.GAME_RUNNING;
         GameStateChanged.Invoke(GameStateInfo);
-        _timer?.Dispose();
+        ShouldRefreshRooms = false;
     }
 }

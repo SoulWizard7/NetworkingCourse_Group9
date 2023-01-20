@@ -38,7 +38,6 @@ public class UIManager : MonoBehaviour
     private List<ScoreboardPlayer> _scoreBoardPlayers = new List<ScoreboardPlayer>();
     private GameInstance _gameInstance;
     private Canvas _selfCanvas;
-    private Timer _timer;
 
     private List<Button> _roomButtons = new List<Button>();
 
@@ -60,7 +59,6 @@ public class UIManager : MonoBehaviour
         {
             _gameInstance.Multiplayer.JoinOnDemandRoom();
             ShowMenu(MenuType.MENU_IngameHUD);
-            _timer?.Dispose();
         });
 
         _playerCountSlider.value = PlayerCount;
@@ -106,7 +104,6 @@ public class UIManager : MonoBehaviour
             { 
                 room.Join();
                 Debug.Log($"Joining room with name: {room.Name}");
-                _timer?.Dispose();
                 ShowMenu(MenuType.MENU_IngameHUD);
             });
         }
@@ -175,10 +172,5 @@ public class UIManager : MonoBehaviour
         _gameStateText.text = gameStateInfo.State.ToString();
 
         Debug.Log("Redrawing HUD!");
-    }
-
-    private void OnDestroy()
-    {
-        _timer?.Dispose();
     }
 }
