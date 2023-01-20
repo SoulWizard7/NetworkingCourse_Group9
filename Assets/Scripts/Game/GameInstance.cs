@@ -127,6 +127,7 @@ public class GameInstance : MonoBehaviour
     void HandleRoomJoined(Multiplayer multiplayer, Room room, User user)
     {
         _timer?.Dispose();
+        Debug.LogWarning($"Joined room: {room.Name} with playercount of: {room.Users.Count} / {room.MaxUsers}");
         room.Users.ForEach(user => GameStateInfo.ScoreboardInfo.Add(new ScoreboardData { Id = user.Index, Name = user.Name, Score = 0 }));
         GameStateChanged.Invoke(GameStateInfo);
     }

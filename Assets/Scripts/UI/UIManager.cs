@@ -105,6 +105,8 @@ public class UIManager : MonoBehaviour
             btn.onClick.AddListener(() => 
             { 
                 room.Join();
+                Debug.Log($"Joining room with name: {room.Name}");
+                _timer?.Dispose();
                 ShowMenu(MenuType.MENU_IngameHUD);
             });
         }
@@ -173,11 +175,6 @@ public class UIManager : MonoBehaviour
         _gameStateText.text = gameStateInfo.State.ToString();
 
         Debug.Log("Redrawing HUD!");
-    }
-
-    void UpdateScoreForPlayer(int playerIndex, int newScore)
-    {
-        _scoreBoardPlayers[playerIndex].UpdateScore(newScore);
     }
 
     private void OnDestroy()
