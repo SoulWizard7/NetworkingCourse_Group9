@@ -57,18 +57,6 @@ public class GameInstanceSynchronizable : Synchronizable
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.U)) 
-        {
-            _gameInstance.SetGameState(GameState.GAME_RUNNING);
-        }
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            _gameInstance.AddPlayerScore(1, 10);
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            _gameInstance.AddPlayerScore(0, 20);
-        }
         if (!CompareInfo(GameInfo, _gameInstance.GameStateInfo))
         {
             Debug.Log("Local is newer");
