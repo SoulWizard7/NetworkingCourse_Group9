@@ -62,8 +62,6 @@ public class Shooting : MonoBehaviour
             ProcedureParameters parameters = new ProcedureParameters();
             parameters.Set("hitPlayer", _multiplayer.Me.Index);
             parameters.Set("projectileOwner", proj.user.Index);
-            string id = proj.ids;
-            parameters.Set("projectileID", id);
             _multiplayer.InvokeRemoteProcedure("HitFunction", UserId.AllInclusive, parameters);
             
             _spawner.Despawn(col.gameObject);

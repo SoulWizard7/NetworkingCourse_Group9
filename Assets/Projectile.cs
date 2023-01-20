@@ -12,8 +12,7 @@ public class Projectile : MonoBehaviour
     public Multiplayer multiplayer;
     public User user;
     public Spawner spawner;
-    public string ids;
-
+    
     private Rigidbody2DSynchronizable _rb;
 
     public void Start()
@@ -39,6 +38,7 @@ public class Projectile : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D col)
     {
+        /*
         var avatar = col.gameObject.GetComponent<Avatar>();
         if (avatar)
         {
@@ -46,14 +46,12 @@ public class Projectile : MonoBehaviour
             {
                 //gameObject.SetActive(false);
             } 
-        }
+        }*/
 
         var asteroid = col.gameObject.GetComponent<Asteroid>();
         if (asteroid)
         {
             asteroid.OnAsteroidDestroy();
         }
-        
-        
     }
 }

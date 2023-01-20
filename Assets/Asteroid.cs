@@ -23,8 +23,7 @@ public class Asteroid : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!GameManager.instance.GameStarted)
-            return;
+        //if(!GameManager.instance.GameStarted) return;
 
         if (user == multiplayer.Me)
         {
