@@ -41,13 +41,14 @@ public class GameInstanceSynchronizable : Synchronizable
         Debug.Log("Updated data");
         _gameInstance.GameStateInfo.State = GameInfo.State;
         _gameInstance.GameStateInfo.ScoreboardInfo = GameInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+        _gameInstance.GameStateInfo.TimeUntilStart = GameInfo.TimeUntilStart;
         _gameInstance.GameStateChanged.Invoke(GameInfo);
     }
 
     bool CompareInfo(GameStateInfo info1, GameStateInfo info2) 
     {
         //If states and gamestate info matches remote and local, return true and do nothing, otherwise return false and adjust
-        return !info1.ScoreboardInfo.Except(info2.ScoreboardInfo, new ScoreboardComparer()).Any() && info1.ScoreboardInfo.Count == info2.ScoreboardInfo.Count && info1.State == info2.State;
+        return !info1.ScoreboardInfo.Except(info2.ScoreboardInfo, new ScoreboardComparer()).Any() && info1.ScoreboardInfo.Count == info2.ScoreboardInfo.Count && info1.State == info2.State && info1.TimeUntilStart == info2.TimeUntilStart;
     }
 
     private void OnGUI()
@@ -62,6 +63,7 @@ public class GameInstanceSynchronizable : Synchronizable
             Debug.Log("Local is newer");
             GameInfo.State = _gameInstance.GameStateInfo.State;
             GameInfo.ScoreboardInfo = _gameInstance.GameStateInfo.ScoreboardInfo.ConvertAll(s => new ScoreboardData { Id = s.Id, Name = s.Name, Score = s.Score });
+            GameInfo.TimeUntilStart = _gameInstance.GameStateInfo.TimeUntilStart;
             _gameInstance.GameStateChanged.Invoke(_gameInstance.GameStateInfo);
             Commit();
         }

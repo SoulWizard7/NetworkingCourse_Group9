@@ -343,12 +343,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2198368616653870005, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}
+      propertyPath: m_text
+      value: 'Waiting for players
+
+        2 / 4 joined'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2198368616653870006, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 84.7
+      objectReference: {fileID: 0}
     - target: {fileID: 2198368616726489427, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2198368616726489427, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2198368617359587714, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2198368618181604185, guid: fad4a5ff404c85747a5b778ac0bd3096, type: 3}

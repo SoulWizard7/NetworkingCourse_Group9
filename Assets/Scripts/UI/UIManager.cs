@@ -62,10 +62,10 @@ public class UIManager : MonoBehaviour
         });
 
         _playerCountSlider.value = PlayerCount;
-        _playerCountText.text = _playerCountSlider.value.ToString();
+        _playerCountText.text = $"Amount of players: {_playerCountSlider.value.ToString()}";
         _playerCountSlider.onValueChanged.AddListener(e => {
             PlayerCount = (int)e;
-            _playerCountText.text = PlayerCount.ToString();
+            _playerCountText.text = $"Amount of players: {PlayerCount.ToString()}";
         });
 
         _nameInput.onSubmit.AddListener(name =>
@@ -93,8 +93,6 @@ public class UIManager : MonoBehaviour
             _roomButtons.Clear();
         }
 
-        Debug.Log(multiplayer.AvailableRooms.Count);
-
         foreach (var room in multiplayer.AvailableRooms)
         {
             Button btn = Instantiate(_roomButtonPrefab, _roomPanel.transform);
@@ -105,7 +103,6 @@ public class UIManager : MonoBehaviour
             btn.onClick.AddListener(() => 
             { 
                 room.Join();
-                Debug.Log($"Joining room with name: {room.Name}");
                 ShowMenu(MenuType.MENU_IngameHUD);
             });
         }
@@ -171,8 +168,16 @@ public class UIManager : MonoBehaviour
             sbPlayer.SetPlayerInfo(e.Name, e.Score);
             _scoreBoardPlayers.Add(sbPlayer);
         });
-        _gameStateText.text = gameStateInfo.State.ToString();
 
-        Debug.Log("Redrawing HUD!");
+        if (_gameInstance.Multiplayer.CurrentRoom == null) return;
+
+        if(_gameInstance.GameStateInfo.State != GameState.GAME_WAITING_TO_START)
+        {
+            _gameStateText.text = $"{gameStateInfo.State.ToFriendlyString()} \n {_gameInstance.Multiplayer.CurrentRoom.Users.Count} / {_gameInstance.Multiplayer.CurrentRoom.MaxUsers} joined";
+        }
+        else
+        {
+            _gameStateText.text = $"Game starting in {_gameInstance.GameStateInfo.TimeUntilStart}";
+        }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -58,11 +59,34 @@ public class GameStateInfo
 {
     public GameState State;
     public List<ScoreboardData> ScoreboardInfo;
+    public float TimeUntilStart;
 
     public GameStateInfo()
     {
         ScoreboardInfo= new List<ScoreboardData>();
         State = GameState.GAME_WAITING_FOR_PLAYERS;
+        TimeUntilStart = 5.0f;
+    }
+}
+
+public static class LoggingExtensions
+{
+    public static string ToFriendlyString(this GameState gs)
+    {
+        switch (gs)
+        {
+            case GameState.GAME_PAUSED:
+                return "Paused";
+            case GameState.GAME_RUNNING:
+                return "Running";
+            case GameState.GAME_STOPPED:
+                return "Stopped";
+            case GameState.GAME_WAITING_FOR_PLAYERS:
+                return "Waiting for players";
+            case GameState.GAME_WAITING_TO_START:
+                return "Waiting to start";
+        }
+        throw new Exception("Out of bounds");
     }
 }
 
@@ -85,8 +109,7 @@ public class GameInstance : MonoBehaviour
         remove => _setupFinished.Remove(value);
     }
 
-    internal GameStateInfo GameStateInfo = new GameStateInfo();
-    public float TimeUntilGameStart = 5.0f;
+    public GameStateInfo GameStateInfo = new GameStateInfo();
 
     internal UnityEvent<GameStateInfo> GameStateChanged = new UnityEvent<GameStateInfo>();
     internal UnityEvent<Dictionary<ushort, int>> ScoresUpdated = new UnityEvent<Dictionary<ushort, int>>();
@@ -136,6 +159,8 @@ public class GameInstance : MonoBehaviour
     void HandleRoomLeft(Multiplayer multiplayer) 
     {
         GameStateInfo.ScoreboardInfo.Clear();
+        GameStateInfo.State = GameState.GAME_WAITING_FOR_PLAYERS;
+        GameStateInfo.TimeUntilStart = 5.0f;
         GameStateChanged.Invoke(GameStateInfo);
         ShouldRefreshRooms = true;
         StartCoroutine(nameof(RefreshRooms));
@@ -177,13 +202,13 @@ public class GameInstance : MonoBehaviour
     private void TryStartGame()
     {
         GameStateInfo.State = GameState.GAME_WAITING_TO_START;
+        StartCoroutine(nameof(GameCountDown));
         GameStateChanged.Invoke(GameStateInfo);
         ShouldRefreshRooms = false;
     }
 
     IEnumerator RefreshRooms()
     {
-        Debug.Log(ShouldRefreshRooms);
         while(ShouldRefreshRooms)
         {
             yield return new WaitForSecondsRealtime(2.0f);
@@ -192,14 +217,25 @@ public class GameInstance : MonoBehaviour
         }
     }
 
+    IEnumerator GameCountDown()
+    {
+        while (GameStateInfo.TimeUntilStart > 0.0f)
+        {
+            yield return new WaitForSecondsRealtime(1.0f);
+            GameStateInfo.TimeUntilStart -= 1.0f;
+        }
+        StartGame();
+    }
+
     private void AbortGameStart()
     {
         GameStateInfo.State = GameState.GAME_WAITING_FOR_PLAYERS;
         GameStateChanged.Invoke(GameStateInfo);
+        StopCoroutine(nameof(GameCountDown));
         ShouldRefreshRooms = false;
     }
 
-    private void StartGame(object state)
+    private void StartGame()
     {
         GameStateInfo.State = GameState.GAME_RUNNING;
         GameStateChanged.Invoke(GameStateInfo);
