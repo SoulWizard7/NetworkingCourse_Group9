@@ -13,22 +13,17 @@ public class Projectile : MonoBehaviour
     public User user;
     public Spawner spawner;
     
-    private Rigidbody2DSynchronizable _rb;
-
-    public void Start()
-    {
-        _rb = GetComponent<Rigidbody2DSynchronizable>();
-        //Debug.Log(user.Index);
-    }
+    
 
     public void Update()
     {
-        if (!_rb) return;
         if (user == multiplayer.Me)
         {
-            _rb.position += (Vector2)_rb.transform.up * (8 * Time.deltaTime);
+            //_rb.position += (Vector2)_rb.transform.up * (8 * Time.deltaTime);
+            transform.position += transform.up * (8 * Time.deltaTime);
             
-            Vector2 projPos = Camera.main.WorldToViewportPoint(_rb.position);
+            //Vector2 projPos = Camera.main.WorldToViewportPoint(_rb.position);
+            Vector2 projPos = Camera.main.WorldToViewportPoint(transform.position);
             if(projPos.x > 1.0f || projPos.x < .0f || projPos.y > 1.0f || projPos.y < .0f)
             {
                 spawner.Despawn(gameObject);

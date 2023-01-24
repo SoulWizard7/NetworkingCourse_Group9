@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Alteruna;
+using Alteruna.Trinity;
 using Avatar = Alteruna.Avatar;
 
 public class PlayerController : MonoBehaviour
@@ -20,11 +21,15 @@ public class PlayerController : MonoBehaviour
     private UIManager _uiManager;
     private GameInstance _gameInstance;
 
+    private Rigidbody2DSynchronizable _rb;
+
     void Start()
     {
         _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
         _uiManager = GameObject.Find("UI").GetComponent<UIManager>();
         cam = Camera.main;
+
+        _rb = GetComponent<Rigidbody2DSynchronizable>();
  
         Cursor.lockState = CursorLockMode.Confined;
 
@@ -75,12 +80,14 @@ public class PlayerController : MonoBehaviour
                 
             //Move player
             transform.Translate(_moveHorizontal, _moveVertical, 0, Space.World);
+            //_rb.position += new Vector2(_moveHorizontal, _moveVertical);
 
             //Mouselook
             Vector2 mousePos = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
             transform.up = mousePos - new Vector2(transform.position.x, transform.position.y);
         }
     }
+
 
     private void OnCollisionEnter2D(Collision2D col)
     {
