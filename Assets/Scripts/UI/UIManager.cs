@@ -55,6 +55,7 @@ public class UIManager : MonoBehaviour
         _startButton.onClick.AddListener(() =>
         {
             _gameInstance.Multiplayer.JoinOnDemandRoom();
+            
             ShowMenu(MenuType.MENU_IngameHUD);
         });
 

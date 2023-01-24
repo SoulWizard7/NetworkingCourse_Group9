@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 1484104220162617365}
   - component: {fileID: 6754667649100471903}
   - component: {fileID: 2545910730234671615}
-  - component: {fileID: 1741227543457005346}
+  - component: {fileID: 2533306812278537747}
+  - component: {fileID: 5760828344227400254}
   m_Layer: 0
   m_Name: Asteroid
   m_TagString: Untagged
@@ -102,6 +103,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Speed: 4
   asteroidYSin: 5
+  multiplayer: {fileID: 0}
+  spawner: {fileID: 0}
 --- !u!114 &6754667649100471903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +144,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.55, y: 0.51}
   m_EdgeRadius: 0
---- !u!114 &1741227543457005346
+--- !u!50 &2533306812278537747
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3013266949029077760}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 0.0001
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &5760828344227400254
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,7 +174,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3013266949029077760}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1312809854, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
+  m_Script: {fileID: 1315754324, guid: 0ae8d181602a00248a82f64a684a1c88, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Multiplayer: {fileID: 0}
@@ -191,3 +215,6 @@ MonoBehaviour:
     LastUpdated: 0
     NeverString: Never
     RealtimeString: Realtime
+  SyncEveryNUpdates: 2
+  FullSyncEveryNSync: 2
+  sendData: 1

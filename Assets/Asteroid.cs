@@ -14,10 +14,13 @@ public class Asteroid : MonoBehaviour
     Vector3 direction;
 
     public User user;
+
+    private Rigidbody2DSynchronizable _rb;
     
     void Start()
     {
         direction  =-transform.right;
+        _rb = GetComponent<Rigidbody2DSynchronizable>();
     }
 
     // Update is called once per frame
@@ -36,8 +39,8 @@ public class Asteroid : MonoBehaviour
                 direction = transform.right;
             }
         
-            transform.position += direction  * Speed * Time.deltaTime;
-            transform.position += new Vector3(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime, 0);
+            _rb.position += (Vector2)direction  * Speed * Time.deltaTime;
+            _rb.position += new Vector2(0, transform.position.y * Mathf.Sin(asteroidYSin * Time.time)  * Time.deltaTime);
         }
     }
 

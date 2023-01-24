@@ -111,27 +111,13 @@ public class GameInstance : MonoBehaviour
     internal UnityEvent<GameStateInfo> GameStateChanged = new UnityEvent<GameStateInfo>();
     internal UnityEvent<Dictionary<ushort, int>> ScoresUpdated = new UnityEvent<Dictionary<ushort, int>>();
     internal Multiplayer Multiplayer;
+    internal Spawner Spawner;
     private bool ShouldRefreshRooms = true;
 
     private void Awake()
     {
         _gameStateSynchronizable = GetComponent<GameInstanceSynchronizable>();
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-            Multiplayer.MaxPlayers = 1;
-        if(Input.GetKeyDown(KeyCode.Alpha2))
-            Multiplayer.MaxPlayers = 2;
-        if(Input.GetKeyDown(KeyCode.Alpha3))
-            Multiplayer.MaxPlayers = 3;
-        if(Input.GetKeyDown(KeyCode.Alpha4))
-            Multiplayer.MaxPlayers = 4;
-
-        //Debug.LogWarning(Multiplayer?.MaxPlayers);
-    }
-
 
     internal void Setup(string name, int playerCount)
     {
@@ -141,6 +127,7 @@ public class GameInstance : MonoBehaviour
         Multiplayer.Connected.AddListener(SetupMultiplayerListeners);
         Multiplayer.Disconnected.AddListener((mp, endpoint) => Debug.Log("DISCONNECTED"));
         _gameStateSynchronizable.enabled = true;
+        Spawner = Multiplayer.GetComponent<Spawner>();
     }
 
     void SetupMultiplayerListeners(Multiplayer multiplayer, Endpoint endpoint)
