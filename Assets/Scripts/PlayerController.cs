@@ -56,6 +56,8 @@ public class PlayerController : MonoBehaviour
                 _uiManager.ShowMenu(MenuType.MENU_PauseMenu);
             }
 
+            if(_gameInstance.GameStateInfo.State != GameState.GAME_RUNNING) { return; }
+
             //Movement
             float _moveVertical = Input.GetAxis("Vertical") * Speed;
             float _moveHorizontal = Input.GetAxis("Horizontal") * Speed;
