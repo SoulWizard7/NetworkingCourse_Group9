@@ -162,7 +162,7 @@ public class GameInstance : MonoBehaviour
 
     void HandleRoomJoined(Multiplayer multiplayer, Room room, User user)
     {
-        if (multiplayer.GetUsers().Count == 1)
+        if (multiplayer.GetUsers().Count == multiplayer.MaxPlayers)
         {
             TryStartGame();
         }
