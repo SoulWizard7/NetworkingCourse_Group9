@@ -37,7 +37,6 @@ public class UIManager : MonoBehaviour
     
     private List<ScoreboardPlayer> _scoreBoardPlayers = new List<ScoreboardPlayer>();
     private GameInstance _gameInstance;
-    private Canvas _selfCanvas;
 
     private List<Button> _roomButtons = new List<Button>();
 
@@ -48,8 +47,6 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        _selfCanvas = GetComponent<Canvas>();
-
         SetupButtonListeners();
     }
 
@@ -62,10 +59,10 @@ public class UIManager : MonoBehaviour
         });
 
         _playerCountSlider.value = PlayerCount;
-        _playerCountText.text = $"Amount of players: {_playerCountSlider.value.ToString()}";
+        _playerCountText.text = $"Amount of players: {_playerCountSlider.value}";
         _playerCountSlider.onValueChanged.AddListener(e => {
             PlayerCount = (int)e;
-            _playerCountText.text = $"Amount of players: {PlayerCount.ToString()}";
+            _playerCountText.text = $"Amount of players: {PlayerCount}";
         });
 
         _nameInput.onSubmit.AddListener(name =>
@@ -97,7 +94,7 @@ public class UIManager : MonoBehaviour
         {
             Button btn = Instantiate(_roomButtonPrefab, _roomPanel.transform);
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-            btnText.text = room.Name;
+            btnText.text = $"{room.Name} {room.Users.Count} / {room.MaxUsers}";
             btn.transform.position += new Vector3(0.0f, room.ID * -30, 0.0f);
             _roomButtons.Add(btn);
             btn.onClick.AddListener(() => 

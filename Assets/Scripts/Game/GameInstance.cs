@@ -6,6 +6,7 @@ using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 public enum GameState
 {
@@ -24,15 +25,11 @@ public class ScoreboardData
     public int Score;
 }
 
+
 public class ScoreboardComparer : IEqualityComparer<ScoreboardData>
 {
     public bool Equals(ScoreboardData x, ScoreboardData y)
     {
-        //Debug.Log($"{x.Id} {y.Id}");
-        //Debug.Log($"{x.Name} {y.Name}");
-        //Debug.Log($"{x.Score} {y.Score}");
-        //Debug.Log($"Comparison results in: {x.Score == y.Score && x.Name == y.Name && x.Id == y.Id}");
-
         if(object.ReferenceEquals(x, y)) return true;
 
         if(x is null || y is null) return false;
@@ -121,6 +118,21 @@ public class GameInstance : MonoBehaviour
         _gameStateSynchronizable = GetComponent<GameInstanceSynchronizable>();
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+            Multiplayer.MaxPlayers = 1;
+        if(Input.GetKeyDown(KeyCode.Alpha2))
+            Multiplayer.MaxPlayers = 2;
+        if(Input.GetKeyDown(KeyCode.Alpha3))
+            Multiplayer.MaxPlayers = 3;
+        if(Input.GetKeyDown(KeyCode.Alpha4))
+            Multiplayer.MaxPlayers = 4;
+
+        //Debug.LogWarning(Multiplayer?.MaxPlayers);
+    }
+
+
     internal void Setup(string name, int playerCount)
     {
         Multiplayer = Instantiate(MultiplayerPrefab, Vector3.zero, Quaternion.identity);
@@ -151,6 +163,8 @@ public class GameInstance : MonoBehaviour
     void HandleRoomJoined(Multiplayer multiplayer, Room room, User user)
     {
         ShouldRefreshRooms = false;
+        Debug.Log(multiplayer.MaxPlayers);
+        Multiplayer.MaxPlayers = room.MaxUsers;
         Debug.LogWarning($"Joined room: {room.Name} with playercount of: {room.Users.Count} / {room.MaxUsers}");
         room.Users.ForEach(user => GameStateInfo.ScoreboardInfo.Add(new ScoreboardData { Id = user.Index, Name = user.Name, Score = 0 }));
         GameStateChanged.Invoke(GameStateInfo);
