@@ -19,7 +19,7 @@ public class Asteroid : MonoBehaviour
     
     void Start()
     {
-        direction  =-transform.right;
+        direction  =-Vector3.right;
         _rb = GetComponent<Rigidbody2DSynchronizable>();
     }
 
@@ -32,11 +32,11 @@ public class Asteroid : MonoBehaviour
         {
             if (transform.position.x > 10f)
             {
-                direction = -transform.right;
+                direction = -Vector3.right;
             }
             else if(transform.position.x < -10f)
             {
-                direction = transform.right;
+                direction = Vector3.right;
             }
         
             _rb.position += (Vector2)direction  * Speed * Time.deltaTime;

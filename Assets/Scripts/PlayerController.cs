@@ -102,7 +102,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator SuperSpeed()
     {
-        float originSpeed = Speed;
+        float originSpeed = 10;
         Speed *= 1.5f;
         yield return new WaitForSeconds(10);
         Speed = originSpeed;

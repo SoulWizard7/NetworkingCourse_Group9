@@ -21,10 +21,13 @@ public class GameManager : MonoBehaviour
     public bool activeAsteroid = false;
     private float asteroidTimeSinceDeath = 0;
 
+    private GameInstance _gameInstance;
+
     private void Awake()
     {
         if (instance == null)
             instance = this;
+        _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
     }
 
     public bool GameStarted
@@ -48,6 +51,8 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        if (_gameInstance.GameStateInfo.State != GameState.GAME_RUNNING) return; 
+        
         if (!activeAsteroid)
         {
             asteroidTimeSinceDeath += Time.deltaTime;
