@@ -43,10 +43,13 @@ public class Projectile : MonoBehaviour
             } 
         }*/
 
-        var asteroid = col.gameObject.GetComponent<Asteroid>();
-        if (asteroid)
+        if (user == multiplayer.Me)
         {
-            asteroid.OnAsteroidDestroy();
+            var asteroid = col.gameObject.GetComponent<Asteroid>();
+            if (asteroid)
+            {
+                asteroid.OnAsteroidDestroy();
+            }
         }
     }
 }

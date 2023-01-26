@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b032cdea369bce47801a22d2e53780e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  score: 0
+  particles: {fileID: 4282875771373365026, guid: 180a847e1fabfac4f8077b108658fc6c, type: 3}
 --- !u!114 &2243306300363135482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248,4 +248,3 @@ MonoBehaviour:
     LastUpdated: 0
     NeverString: Never
     RealtimeString: Realtime
-  speed: 10

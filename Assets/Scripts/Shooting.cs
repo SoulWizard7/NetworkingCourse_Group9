@@ -17,6 +17,8 @@ public class Shooting : MonoBehaviour
 
     private List<GameObject> projectiles;
 
+    public GameObject particles;
+
     void Start()
     {
         _gameInstance = GameObject.Find("GameInstance").GetComponent<GameInstance>();
@@ -24,6 +26,7 @@ public class Shooting : MonoBehaviour
         _spawner = _multiplayer.GetComponent<Spawner>();
         _avatar = GetComponent<Alteruna.Avatar>();
         _multiplayer.RegisterRemoteProcedure("HitFunction", HitFuctionRPC);
+        _multiplayer.RegisterRemoteProcedure("SpawnParticles", SpawnParticlesRPC);
         projectiles = new List<GameObject>();
     }
 
@@ -79,9 +82,29 @@ public class Shooting : MonoBehaviour
                 parameters.Set("projectileOwner", proj.user.Index);
 
                 _multiplayer.InvokeRemoteProcedure("HitFunction", UserId.AllInclusive, parameters);
+
+                Vector2 pos = col.gameObject.transform.position;
+
+                ProcedureParameters particleParameters = new ProcedureParameters();
+                particleParameters.Set("posX", pos.x);
+                particleParameters.Set("posY", pos.y);
+                _multiplayer.InvokeRemoteProcedure("SpawnParticles", UserId.All, particleParameters);
+                GameObject p = Instantiate(particles, pos, Quaternion.identity);
+                Destroy(p, 1);
+                
                 _spawner.Despawn(proj.gameObject);
             }
         }
+    }
+
+    void SpawnParticlesRPC(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
+    {
+        Vector2 pos = new Vector2();
+        pos.x = parameters.Get("posX", 0f);
+        pos.y = parameters.Get("posY", 0f);
+
+        GameObject p = Instantiate(particles, pos, Quaternion.identity);
+        Destroy(p, 1);
     }
     
     void HitFuctionRPC(ushort fromUser, ProcedureParameters parameters, uint callId, ITransportStreamReader processor)
